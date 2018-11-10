@@ -45,6 +45,11 @@ class MZImage(object):
 	def currentCodePage(self):
 		return self.read(0,self.sysInfo+4)
 	#
+	#		Bootstrap paging - the size of chunks permitted.
+	#
+	def bootstrapPaging(self):
+		return 0x4000		
+	#
 	#		Set boot address
 	#
 	def setRunAddress(self,page,address):

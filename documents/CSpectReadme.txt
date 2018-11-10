@@ -1,9 +1,9 @@
-#CSpect V2.0.2 ZXSpectrum emulator by Mike Dailly
+#CSpect V2.1.1 ZXSpectrum emulator by Mike Dailly
 (c)1998-2018 All rights reserved
 
 Be aware...emulator is far from well tested, might crash for any reason!
 
-NOTE: DISTRABUTION WITH COMMERCIAL TITLES IS NOT PERMITTED WITHOUT WRITTEN CONSENT.
+NOTE: DISTRIBUTION WITH COMMERCIAL TITLES IS NOT PERMITTED WITHOUT WRITTEN CONSENT.
 
 Installing
 ----------
@@ -38,6 +38,17 @@ Command Line Options
 
 Whats new
 ======================================================================================
+V2.1.1
+------
+Fixed a crash in sprite palettes.
+
+
+V2.1.0
+------
+Fixed Create/Truncate on esxDOS emulation
+Mouse support added
+Gamepads added - not sure about OSX and Linux, but appear fine on Windows.
+
 V2.0.2
 ------
 Ported to C#, OpenTL, OpenGL and OpenAL, now fully cross platform!

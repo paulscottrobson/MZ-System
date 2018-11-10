@@ -1,0 +1,50 @@
+; @codeonly
+
+; ***********************************************************************************************
+; ***********************************************************************************************
+;
+;		Name : 		utilities.word
+;		Purpose : 	Utility functions for compiler/executor
+;		Author :	Paul Robson (paul@robsons.org.uk)
+;		Date : 		5th November 2018
+;
+; ***********************************************************************************************
+; ***********************************************************************************************
+
+; ***********************************************************************************************
+;
+;									Generate code for constant in HL
+;
+; ***********************************************************************************************
+
+COMUTLConstantCode:
+		ld 		a,$EB 								; ex de,hl
+		call 	FARCompileByte 
+		ld 		a,$21 								; ld hl,const
+		call 	FARCompileByte
+		call 	FARCompileWord 						; compile the constant
+		ret
+
+; ***********************************************************************************************
+;
+;				Compile code to call EHL from current compile position
+;
+; ***********************************************************************************************
+
+COMUTLCodeCallEHL:
+		ld 		a,$CD 								; call <Address>
+		call 	FARCompileByte
+		call 	FARCompileWord 						; compile the constant
+		ret
+
+; ***********************************************************************************************
+;
+;									Execute code at EHL 
+;
+; ***********************************************************************************************
+
+COMUTLExecuteEHL:
+		ld 		a,e 								; switch to that page
+		setMemoryPageA
+		ex 		af,af' 								; set A' up for executing it.
+		jp 		(hl) 								; go do the code.

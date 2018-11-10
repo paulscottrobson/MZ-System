@@ -9,8 +9,9 @@
 ; ***************************************************************************************
 ; ***************************************************************************************
 
+EditBuffer = 	$7808								; edit buffer (option either side)
 EditBufferSize = $400 								; buffer for editing / importing bootstrap
-EditBuffer = 	$7802								; edit buffer (option either side)
+ErrorMessageBuffer = $7C10 							; buffer for error messages
 StackTop   = 	$7EF0 								; Top of stack
 
 DictionaryPage = $20 								; dictionary page
@@ -29,12 +30,17 @@ Boot:		ld 		sp,(SIStack)					; reset Z80 Stack
 			di										; enable interrupts
 			nextreg	7,2								; set turbo port (7) to 2 (14Mhz)
 			call 	SetMode48k 						; initialise and clear screen.
-			db 		$DD,$01
 			ld 		a,(SIBootCodePage) 				; get the page to start
 			setMemoryPageA
 			ex 		af,af' 							; set the current code page in A'
 			ld 		hl,(SIBootCodeAddress)
 			jp 		(hl)
+
+ErrorHandler:
+			ld 		a,2
+			ld 		(IOColour),a
+			call 	PrintString
+			jp 		HaltZ80
 
 AlternateFont:
 			include "font.inc"

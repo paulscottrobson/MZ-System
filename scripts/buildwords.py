@@ -19,7 +19,7 @@ for root,dirs,files in os.walk("core.words"):
 		if f[-5:] == ".word":
 			fileList.append(root+os.sep+f)
 
-for root,dirs,files in os.walk("compiler.words"):
+for root,dirs,files in os.walk("system.words"):
 	for f in files:
 		if f[-5:] == ".word":
 			fileList.append(root+os.sep+f)

@@ -16,7 +16,6 @@ rem
 rem		Run it - note bootsave.img as a zero length file is required due to CSpect bug.
 rem
 if not exist bootloader.sna goto exit
-fsutil file createnew bootsave.img 0
 ..\bin\CSpect.exe -zxnext -cur -brk -exit -w3 bootloader.sna
 rem sh ..\bin\zrun.sh .\ bootloader.sna
 rem

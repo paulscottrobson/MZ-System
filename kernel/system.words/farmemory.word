@@ -1,0 +1,59 @@
+; @codeonly
+
+; ***********************************************************************************************
+; ***********************************************************************************************
+;
+;		Name : 		farmemory.word
+;		Purpose : 	Far Memory code
+;		Author :	Paul Robson (paul@robsons.org.uk)
+;		Date : 		5th November 2018
+;
+; ***********************************************************************************************
+; ***********************************************************************************************
+
+; ***********************************************************************************************
+;
+;								Byte compile far memory A
+;
+; ***********************************************************************************************
+
+FARCompileByte:
+		push 	af 									; save byte and HL
+		push 	hl
+		push 	af 									; save byte
+		ld		a,(SINextFreeCodePage) 				; switch to page
+		setMemoryPageA
+		ld 		hl,(SINextFreeCode) 				; write to memory location
+		pop 	af
+		ld 		(hl),a
+		inc 	hl 									; bump memory location
+		ld 		(SINextFreeCode),hl 				; write back
+		pop 	hl 									; restore and exit
+		pop 	af
+		ret
+
+; ***********************************************************************************************
+;
+;								Word compile far memory A/HL
+;
+; ***********************************************************************************************
+
+FARCompileWord:
+		push 	af 									; save byte and HL
+		push 	de
+		push 	hl
+		ex 		de,hl 								; word into DE
+		ld		a,(SINextFreeCodePage) 				; switch to page
+		setMemoryPageA
+		ld 		hl,(SINextFreeCode) 				; write to memory location
+		ld 		(hl),e
+		inc 	hl 	
+		ld 		(hl),d
+		inc 	hl
+		ld 		(SINextFreeCode),hl 				; write back
+		pop 	hl
+		pop 	de 									; restore and exit
+		pop 	af
+		ret
+						
+						

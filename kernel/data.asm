@@ -22,7 +22,7 @@ SINextFreeCode: 									; +0 	Next Free Code Byte
 SINextFreeCodePage: 								; +4 	Next Free Code Byte Page
 		dw 		FirstCodePage,0
 SIBootCodeAddress:									; +8	Run from here
-		dw 		HaltZ80,0
+		dw 		LOADBootstrap,0
 SIBootCodePage: 									; +12   Run page.
 		db		FirstCodePage,0,0,0
 SIPageUsage:										; +16 	Page Usage Table
@@ -48,7 +48,9 @@ IOScreenPosition:									; Position on screen
 		dw 		0
 IOColour: 											; writing colour
 		db 		7
-
+PARSEPointer:										; Parsing position
+		dw 		0
+		
 PageUsage:
 		db 		1									; $20 (dictionary) [1 = system]
 		db 		1 									; $22 (bootstrap code)

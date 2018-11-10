@@ -1380,3 +1380,369 @@ __mzdefine_6e_6f_74_3a_3a_77:
   ld  l,a
   ret
 
+; ---------------------------------------------------------
+; Name :  Type : codeonly
+; ---------------------------------------------------------
+
+; ***********************************************************************************************
+; ***********************************************************************************************
+;
+;  Name :   compiler.word
+;  Purpose :  Word Compiler
+;  Author : Paul Robson (paul@robsons.org.uk)
+;  Date :   5th November 2018
+;
+; ***********************************************************************************************
+; ***********************************************************************************************
+COMCompileWord:
+  push  bc
+  push  de
+  push  hl
+  scf
+  pop  hl
+  pop  de
+  pop  bc
+  ret
+
+; ---------------------------------------------------------
+; Name : string.to.int Type : word
+; ---------------------------------------------------------
+
+__mzdefine_73_74_72_69_6e_67_2e_74_6f_2e_69_6e_74_3a_3a_77:
+; ***********************************************************************************************
+; ***********************************************************************************************
+;
+;  Name :   constant.word
+;  Purpose :  ASCII -> Integer convert.
+;  Author : Paul Robson (paul@robsons.org.uk)
+;  Date :   5th November 2018
+;
+; ***********************************************************************************************
+; ***********************************************************************************************
+; ***********************************************************************************************
+;
+;   Convert ASCIIZ string at HL to constant in HL. DE 0, Carry Clear if true
+;
+; ***********************************************************************************************
+CONSTConvert:
+ push  bc
+ ex   de,hl          ; string in DE.
+ ld   hl,$0000        ; result in HL.
+ ld   c,0          ; C is set if negative
+ ld   a,(de)         ; check if -x
+ cp   '-'
+ jr   nz,__CONConvLoop
+ inc  de           ; skip over - sign.
+ inc  c           ; C is sign flag
+__CONConvLoop:
+ ld   a,(de)         ; get next character
+ inc  de
+ cp   '0'          ; must be 0-9 otherwise
+ jr   c,__CONConFail
+ cp   '9'+1
+ jr   nc,__CONConFail
+ push  bc
+ push  hl           ; HL -> BC
+ pop  bc
+ add  hl,hl          ; HL := HL * 4 + BC
+ add  hl,hl
+ add  hl,bc
+ add  hl,hl          ; HL := HL * 10
+ ld   b,0          ; add the digit into HL
+ and  15
+ ld   c,a
+ add  hl,bc
+ pop  bc
+ ld   a,(de)
+ cp   ' '+1
+ jr   nc,__CONConvLoop
+ ld   a,c
+ or   a
+ jr   z,__CONConNotNegative
+ ld   a,h          ; negate HL
+ cpl
+ ld   h,a
+ ld   a,l
+ cpl
+ ld   l,a
+ inc  hl
+__CONConNotNegative:
+ ld   de,$0000
+ xor  a           ; clear carry
+ pop  bc
+ ret
+__CONConFail:           ; didn't convert
+ ld   hl,$FFFF
+ ld   de,$FFFF
+ scf
+ pop  bc
+ ret
+
+; ---------------------------------------------------------
+; Name :  Type : codeonly
+; ---------------------------------------------------------
+
+; ***********************************************************************************************
+; ***********************************************************************************************
+;
+;  Name :   farmemory.word
+;  Purpose :  Far Memory code
+;  Author : Paul Robson (paul@robsons.org.uk)
+;  Date :   5th November 2018
+;
+; ***********************************************************************************************
+; ***********************************************************************************************
+; ***********************************************************************************************
+;
+;        Byte compile far memory A
+;
+; ***********************************************************************************************
+FARCompileByte:
+  push  af          ; save byte and HL
+  push  hl
+  push  af          ; save byte
+  ld  a,(SINextFreeCodePage)     ; switch to page
+  setMemoryPageA
+  ld   hl,(SINextFreeCode)     ; write to memory location
+  pop  af
+  ld   (hl),a
+  inc  hl          ; bump memory location
+  ld   (SINextFreeCode),hl     ; write back
+  pop  hl          ; restore and exit
+  pop  af
+  ret
+; ***********************************************************************************************
+;
+;        Word compile far memory A/HL
+;
+; ***********************************************************************************************
+FARCompileWord:
+  push  af          ; save byte and HL
+  push  de
+  push  hl
+  ex   de,hl         ; word into DE
+  ld  a,(SINextFreeCodePage)     ; switch to page
+  setMemoryPageA
+  ld   hl,(SINextFreeCode)     ; write to memory location
+  ld   (hl),e
+  inc  hl
+  ld   (hl),d
+  inc  hl
+  ld   (SINextFreeCode),hl     ; write back
+  pop  hl
+  pop  de          ; restore and exit
+  pop  af
+  ret
+
+; ---------------------------------------------------------
+; Name : bootstrap.load Type : word
+; ---------------------------------------------------------
+
+__mzdefine_62_6f_6f_74_73_74_72_61_70_2e_6c_6f_61_64_3a_3a_77:
+; ********************************************************************************************************
+; ********************************************************************************************************
+;
+;  Name :   loader.asm
+;  Author :  Paul Robson (paul@robsons.org.uk)
+;  Purpose :  Source loader
+;  Date :   5th November 2018
+;
+; ********************************************************************************************************
+; ********************************************************************************************************
+; ********************************************************************************************************
+;
+;         Load the bootstrap page
+;
+; ********************************************************************************************************
+LOADBootstrap:
+  push  bc
+  push  de
+  push  hl
+  push  ix
+  ld   hl,__LOADBoot
+  call  PrintString
+  ld   ix,$C000        ; current section being loaded.
+;
+;  Once here for every 'chunk'. We copy the text to the editor buffer in
+;  chunks (currently 1024 bytes) until we've done all 16k of the page.
+;
+__LOADBootLoop:
+  ld   a,BootstrapPage      ; set the current page to bootstrap page.
+  setMemoryPageA
+  push  ix          ; HL = Current Section
+  pop  hl
+  ld   de,EditBuffer        ; Copy to edit buffer 1k of code.
+  ld   bc,EditBufferSize
+  ldir
+  ld   a,6         ; show progress by printing a '.'
+  ld   (IOColour),a
+  ld   a,'.'
+  call  PrintCharacter
+  ld   hl,EditBuffer       ; now scan the edit buffer
+  call  LOADScanBuffer
+  ld   de,EditBufferSize      ; add buffer size to IX
+  add  ix,de
+  push  ix         ; until wrapped round to $0000
+  pop  hl
+  ld   a,h
+  or   l
+  jr   nz,__LOADBootLoop
+  pop  ix
+  pop  hl
+  pop  de
+  pop  bc
+  jp   HaltZ80
+; ********************************************************************************************************
+;
+;         Process (compiling) the text at HL.
+;
+; ********************************************************************************************************
+LOADScanBuffer:
+  push  af
+  push  bc
+  push  de
+  push  hl
+  push  ix
+  call  PARSESetWordPointer     ; set the word pointer.
+__LOADScanLoop:
+  call  PARSEGetNextWord     ; try to get next word text@HL type@B
+  jr   c,__LOADScanExit      ; nothing to get.
+  call  COMCompileWord       ; compile the word at HL
+  jr   c,__LOADErrorHandler     ; error ?
+  jr   __LOADScanLoop
+__LOADScanExit:
+  pop  ix
+  pop  hl
+  pop  de
+  pop  bc
+  pop  af
+  ret
+; ********************************************************************************************************
+;
+;    Come here if an error has occurred (cannot find word, or it is protected)
+;
+; ********************************************************************************************************
+__LOADErrorHandler:         ; unknown word @ HL
+  ld   de,__LOADErrorMessage
+  ld   bc,ErrorMessageBuffer
+  push  bc
+__LOADErrorCopyName:
+  ld   a,(hl)
+  ld   (bc),a
+  inc  bc
+  inc  hl
+  cp   ' '+1
+  jr   nc,__LOADErrorCopyName
+  dec  bc
+__LOADErrorCopyError:
+  ld   a,(de)
+  ld   (bc),a
+  inc  bc
+  inc  de
+  or   a
+  jr   nz,__LOADErrorCopyError
+  pop  hl
+  jp   ErrorHandler
+__LOADErrorMessage:
+  db   " : Unknown word",0
+__LOADBoot:
+  db   "MZ Bootstrap (10-11-18) ",0
+
+; ---------------------------------------------------------
+; Name :  Type : codeonly
+; ---------------------------------------------------------
+
+; ********************************************************************************************************
+; ********************************************************************************************************
+;
+;  Name :   parser.word
+;  Author :  Paul Robson (paul@robsons.org.uk)
+;  Purpose :  Source parser
+;  Date :   5th November 2018
+;
+; ********************************************************************************************************
+; ********************************************************************************************************
+; ********************************************************************************************************
+;
+;      Set the pointer to the data to be parsed.
+;
+; ********************************************************************************************************
+PARSESetWordPointer:
+  ld   (PARSEPointer),hl
+  ret
+; ********************************************************************************************************
+;
+;   Get the next parsed element, return in HL, type in B CS if nothing to get.
+;
+; ********************************************************************************************************
+PARSEGetNextWord:
+  ld   hl,(PARSEPointer)     ; get parse pointer
+__PARSEGNWSkipSpaces:
+  ld   a,(hl)         ; skip over spaces
+  inc  hl
+  cp   ' '
+  jr   z,__PARSEGNWSkipSpaces
+  or   a          ; if reached the end return with carry set
+  scf
+  ret  z
+  dec  hl          ; back to first character.
+  push  hl          ; save start of word on stack.
+__PARSESkipOverWord:
+  ld   a,(hl)         ; skip over the word looking for null/space
+  inc  hl
+  cp   ' '+1
+  jr   nc,__PARSESkipOverWord
+  dec  hl          ; go back to the null/space
+  ld  (PARSEPointer),hl       ; write the pointer back
+  xor  a          ; clear carry
+  pop  hl          ; HL points to the start of the word
+  ld   b,' '        ; it is type $20 (ASCII ending in null/space)
+  ret
+
+; ---------------------------------------------------------
+; Name :  Type : codeonly
+; ---------------------------------------------------------
+
+; ***********************************************************************************************
+; ***********************************************************************************************
+;
+;  Name :   utilities.word
+;  Purpose :  Utility functions for compiler/executor
+;  Author : Paul Robson (paul@robsons.org.uk)
+;  Date :   5th November 2018
+;
+; ***********************************************************************************************
+; ***********************************************************************************************
+; ***********************************************************************************************
+;
+;         Generate code for constant in HL
+;
+; ***********************************************************************************************
+COMUTLConstantCode:
+  ld   a,$EB         ; ex de,hl
+  call  FARCompileByte
+  ld   a,$21         ; ld hl,const
+  call  FARCompileByte
+  call  FARCompileWord       ; compile the constant
+  ret
+; ***********************************************************************************************
+;
+;    Compile code to call EHL from current compile position
+;
+; ***********************************************************************************************
+COMUTLCodeCallEHL:
+  ld   a,$CD         ; call <Address>
+  call  FARCompileByte
+  call  FARCompileWord       ; compile the constant
+  ret
+; ***********************************************************************************************
+;
+;         Execute code at EHL
+;
+; ***********************************************************************************************
+COMUTLExecuteEHL:
+  ld   a,e         ; switch to that page
+  setMemoryPageA
+  ex   af,af'         ; set A' up for executing it.
+  jp   (hl)         ; go do the code.
+
