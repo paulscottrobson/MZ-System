@@ -1398,11 +1398,104 @@ COMCompileWord:
   push  bc
   push  de
   push  hl
+  db   $DD,$01
+  push  hl        ; save word address
+  call  DICTFindWord      ; try to find it
+  pop  bc         ; restore word address to BC
+  jr   nc,__COMCWWordFound
+  ld   h,b        ; put back in HL
+  ld   l,c
+  ld   a,(hl)        ; check for string constant
+  cp   '"'
+  jr   z,__COMCWStringConstant
+  call  CONSTConvert      ; convert it to a constant
+  jr   nc,__COMCWVariable     ; and compile that value.
   scf
+__COMCWExit:
   pop  hl
   pop  de
   pop  bc
   ret
+;
+;  Word found in dictionary
+;
+__COMCWWordFound:
+  ld   a,d
+  or   a
+  jr   z,__COMCWStandardWord
+  cp   15
+  jr   z,__COMCWImmediate
+  cp   14
+  jr   z,__COMCWVariable
+;
+;  Found a copy compiling macro
+;
+  ld   b,d         ; count to copy
+__COMCWCopyLoop:
+  ld   a,(hl)
+  call  FARCompileByte
+  inc  hl
+  djnz  __COMCWCopyLoop
+  xor  a          ; exit happy
+  jr   __COMCWExit
+;
+;  Found a standard word
+;
+__COMCWStandardWord:
+  call  COMUTLCodeCallEHL      ; write the code to call E:HL
+  xor  a          ; exit happy
+  jr   __COMCWExit
+;
+;  Found a variable - also used to compile a constant.
+;
+__COMCWVariable:
+  call  COMUTLConstantCode      ; compile as constant
+  xor  a          ; exit happy
+  jr   __COMCWExit
+;
+;  Found immediate word.
+;
+__COMCWImmediate:
+  call  COMUTLExecuteEHL      ; execute the word.
+  xor  a          ; exit happy
+  jr   __COMCWExit
+;
+;  String Constant
+;
+__COMCWStringConstant:
+  ld   b,$FF        ; calculate length
+  push  hl
+__COMCWGetLength:
+  inc  b
+  inc  hl
+  ld   a,(hl)
+  cp   ' '+1
+  jr   nc,__COMCWGetLength
+  ld   a,$18         ; compile JR <length+1>
+  call  FARCompileByte
+  ld   a,b
+  inc  a
+  call  FARCompileByte
+  ld   de,(SINextFreeCode)     ; save address
+  pop  hl          ; compile string
+__COMCWDoString:
+  ld   a,b
+  or   a
+  jr   z,__COMCWStringDone
+  inc  hl
+  dec  b
+  ld   a,(hl)
+  cp   '_'
+  jr   nz,__COMCWNotUnderscore
+  ld   a,' '
+__COMCWNotUnderscore:
+  call  FARCompileByte
+  jr   __COMCWDoString
+__COMCWStringDone:
+  xor  a
+  call  FARCompileByte
+  ex   de,hl
+  jr   __COMCWVariable
 
 ; ---------------------------------------------------------
 ; Name : string.to.int Type : word
@@ -1477,6 +1570,67 @@ __CONConFail:           ; didn't convert
  scf
  pop  bc
  ret
+
+; ---------------------------------------------------------
+; Name : dictionary.find Type : word
+; ---------------------------------------------------------
+
+__mzdefine_64_69_63_74_69_6f_6e_61_72_79_2e_66_69_6e_64_3a_3a_77:
+  jr   DICTFindWord
+; ***********************************************************************************************
+;
+;   Find word in dictionary. HL points to name, on exit, HL is the address, D the
+;   type ID and E the page number with CC if found, CS set and HL=DE=0 if not found.
+;
+; ***********************************************************************************************
+DICTFindWord:
+  push  bc         ; save registers - return in DEHL Carry
+  push  ix
+  ld   a,DictionaryPage     ; switch to dictionary page
+  setMemoryPageA
+  ld   ix,$C000       ; dictionary start
+__DICTFindMainLoop:
+  ld   a,(ix+0)      ; examine offset, exit if zero.
+  or   a
+  jr   z,__DICTFindFail
+  push  ix         ; save pointers on stack.
+  push  hl
+__DICTCheckName:
+  ld   a,(ix+5)       ; compare dictionary vs character.
+  xor  (hl)        ; get the matching character.
+  and  $7F        ; ignore bit 7, for now.
+  jr   nz,__DICTFindNoMatch    ; no, not the same word.
+  inc  hl         ; HL point to next character
+  inc  ix
+  bit  7,(ix+4)       ; have we matched everything, e.g. last match bit 7 was high.
+  jr   z,__DICTCheckName
+  ld   a,(hl)       ; if so, see if the next one is EOW
+  cp   ' '+1
+  jr   nc,__DICTFindNoMatch    ; if not , bad match.
+  pop  hl         ; Found a match. restore HL and IX
+  pop  ix
+  ld   d,(ix+4)       ; D = type/length
+  ld   e,(ix+1)      ; E = page
+  ld   l,(ix+2)      ; HL = address
+  ld   h,(ix+3)
+  xor  a         ; clear the carry flag.
+  jr   __DICTFindExit
+__DICTFindNoMatch:        ; this one doesn't match.
+  pop  hl         ; restore HL and IX
+  pop  ix
+__DICTFindNext:
+  ld   e,(ix+0)      ; DE = offset
+  ld   d,$00
+  add  ix,de        ; next word.
+  jr   __DICTFindMainLoop    ; and try the next one.
+__DICTFindFail:
+  ld   de,$0000       ; return all zeros.
+  ld   hl,$0000
+  scf          ; set carry flag
+__DICTFindExit:
+  pop  ix         ; pop registers and return.
+  pop  bc
+  ret
 
 ; ---------------------------------------------------------
 ; Name :  Type : codeonly
