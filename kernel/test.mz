@@ -1,6 +1,79 @@
-: test1 33 10 * ;
-: test2 4 ;
+// ***************************************************************************************
+// ***************************************************************************************
+//
+//		Name : 		core.mz
+//		Author :	paul@robsons.org.uk
+//		Date : 		12th November 2018
+//		Purpose :	Core MZ functionality.
+//
+// ***************************************************************************************
+// ***************************************************************************************
 
-:: test test1 test2 + debug halt test1 ;
 
-test
+// ***************************************************************************************
+//
+//						:: Define a word which just executes
+//
+// ***************************************************************************************
+
+
+parse.get.define.word.immediate :: 							// Create a definition ::
+	parse.get.define.word 									// which does that itself, e.g. creates a definition
+;
+
+// ***************************************************************************************
+//	
+//			: Defines a normal word - with a "call to compile to call here" prefix
+//
+// ***************************************************************************************
+
+:: : 														// Create a definition :
+	parse.get.define.word 									// It creates a definition
+	205 c, 													// Compile CALL xxxx
+	dictionary.find.immediate compile.default.header 		// Compile the address of the default header
+	,
+;
+
+// ***************************************************************************************
+//
+//								variable defines a variable.
+//
+// ***************************************************************************************
+
+:: __variable.handler 			 							// What the variable handler does when
+	235 c, 33 c, r>a ,  									// a variable is called. Compile ex de,hl ; ld hl,addr
+;
+
+:: variable 
+	parse.get.define.word 									// It creates a definition
+	205 c, 													// Compile CALL xxxx
+	dictionary.find.immediate __variable.handler 			// Compile the address of the handler, execed when word run
+	,
+	0 , 													// Compile space for the data itself.
+;
+
+// ***************************************************************************************
+//
+//		Premodifiers for variables !! x @@ x && x generate load/store/address code.
+//
+// ***************************************************************************************
+
+:: && 
+	235 c, 33 c, 											// compile ex de,hl ld hl,xxxx
+	dictionary.find.check 									// Gets next thing in i/p stream, puts into A
+	3 + 													// skip call to the actual address.
+	, 														// Compile it.
+;
+
+:: !! 34 c, dictionary.find.check 3 + , ;					// The same, does ld (xxxx),hl
+:: @@ 235 c, 42 c, dictionary.find.check 3 + , ; 			// The same, does ex de,hl ; ld hl,(xxxx)
+
+variable x
+variable y
+
+: test1  -2 x ! 32766 !! y ;
+: test2 @@ x .hex y @ .hex ;
+
+:: hello test1 test2 debug  halt ;
+
+hello

@@ -1,0 +1,3 @@
+; @word c,
+	ld 		a,l
+	jp 		FARCompileByte

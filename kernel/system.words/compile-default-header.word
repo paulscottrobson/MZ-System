@@ -1,0 +1,3 @@
+; @immediate compile.default.header
+
+		jp 		COMHCreateCallToCode

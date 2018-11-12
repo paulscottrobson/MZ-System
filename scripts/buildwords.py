@@ -79,8 +79,8 @@ for f in fileList:
 	#
 	if wType == "macro":			
 		h.write("{0}:\n".format(scrambleName))
+		h.write("    ld   a,{0}_end-{0}-5{1}\n".format(scrambleName,"+128" if isProtected else ""))
 		h.write("    call COMHCopyFollowingCode\n")
-		h.write("    db {0}_end-{0}-4{1}\n".format(scrambleName,"+128" if isProtected else ""))
 		for s in src[1:]:
 			h.write(s+"\n")
 		h.write("{0}_end:\n".format(scrambleName))

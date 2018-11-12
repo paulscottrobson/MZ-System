@@ -83,6 +83,19 @@ class MZImage(object):
 			if self.read(0,pageTableEntry) == 0:
 				self.write(0,pageTableEntry,dataType)
 	#
+	#		Allocate page of memory to a specific purpose.
+	#
+	def findFreePage(self):
+		p = self.getSysInfo() + 16
+		pageUsageTable = self.read(0,p)+self.read(0,p+1)*256
+		page = 0x20
+		while self.read(0,pageUsageTable) != 0:
+			page += 0x2
+			pageUsageTable += 1
+			assert self.read(0,pageUsageTable) != 255,"No space left in page usage table."
+		self.write(0,pageUsageTable,2)
+		return page
+	#
 	#		Expand physical size of image to include given address
 	#
 	def expandImage(self,page,address):
@@ -103,8 +116,9 @@ class MZImage(object):
 		self.write(dp,p+2,address & 0xFF)
 		self.write(dp,p+3,address >> 8)
 		self.write(dp,p+4,len(name))
-		for i in range(0,len(name)):
-			self.write(dp,p+5+i,ord(name[i]))
+		aname = [ord(x) for x in name]
+		for i in range(0,len(aname)):
+			self.write(dp,p+5+i,aname[i])
 		p = p + len(name) + 5
 		self.write(dp,p,0)
 	#

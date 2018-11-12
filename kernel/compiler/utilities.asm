@@ -1,4 +1,13 @@
-; @codeonly
+; ***************************************************************************************
+; ***************************************************************************************
+;
+;		Name : 		utilities.asm
+;		Author :	paul@robsons.org.uk
+;		Date : 		12th November 2018
+;		Purpose :	Utility function.
+;
+; ***************************************************************************************
+; ***************************************************************************************
 
 ; ***********************************************************************************************
 ;
@@ -17,6 +26,7 @@ COMUTLConstantCode:
 ; ***********************************************************************************************
 ;
 ;				Compile code to call EHL from current compile position
+;							(Does not handle cross page code)
 ;
 ; ***********************************************************************************************
 
@@ -58,12 +68,11 @@ COMUTLExecuteExit:
 
 COMHCopyFollowingCode:
 		pop 	hl 										; get return address
-		ld 		a,(hl) 									; get count in bits 0..3
-		and 	15
-		ld 		b,a
+		and		15 										; mask any protection
+		ld 		b,a 									; put count in B
 __COMHCFCLoop: 											; copy bytes
-		inc 	hl
 		ld 		a,(hl)
+		inc 	hl
 		call 	FARCompileByte
 		djnz 	__COMHCFCLoop
 		ret
@@ -76,5 +85,9 @@ __COMHCFCLoop: 											; copy bytes
 
 COMHCreateCallToCode:
 		pop 	hl 										; get the address of the code.
+		ex 		af,af'
+		ld 		e,a 									; put the page number in E.
+		ex 		af,af'
 		call 	COMUTLCodeCallEHL 						; compile a call to E:HL from here. 	
 		ret
+

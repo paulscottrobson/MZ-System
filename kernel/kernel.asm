@@ -18,7 +18,6 @@ DictionaryPage = $20 								; dictionary page
 BootstrapPage = $22 								; page containing bootstrapped text.
 FirstCodePage = $24									; first code page
 
-
 			opt 	zxnextreg
 			org 	$8000
 			jr 		Boot
@@ -45,7 +44,18 @@ AlternateFont:
 			include "support/multiply.asm"			; support functions
 			include "support/divide.asm"
 			include "support/keyboard.asm"
+
+			include "compiler/utilities.asm"		; compiler functions
+			include "compiler/farmemory.asm"
+			include "compiler/paging.asm"
+			include "compiler/loader.asm"
+			include "compiler/parser.asm"
+			include "compiler/constant.asm"
+			include "compiler/dictionary.asm"
+			include "compiler/compiler.asm"
+						
 			include "__words.asm"					; generated file of words
+
 			include "data.asm"						; data area
 
 			org 	$C000

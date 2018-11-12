@@ -1,0 +1,10 @@
+; @word dictionary.find.check	
+
+		call 	PARSEGetNextWord									; get the word to find.
+		jr 		c,__findFails 										; nothing in the parse buffer
+		call 	DICTFindWord 										; and try to find it
+		ret 	nc 													; exit if found
+		ld 		hl,__DFNotFound
+		jp 		ErrorHandler
+__DFNotFound:
+		db 		"Word not known in dictionary search",0

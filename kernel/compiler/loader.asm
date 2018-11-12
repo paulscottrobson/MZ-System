@@ -1,5 +1,3 @@
-; @codeonly
-
 ; ********************************************************************************************************
 ; ********************************************************************************************************
 ;
@@ -80,8 +78,8 @@ __LOADScanLoop:
 		jr 		c,__LOADScanExit 
 
 		call 	COMCompileWord 						; compile the word at HL
-		
 		jr 		c,__LOADErrorHandler 				; error ?
+
 		jr 		__LOADScanLoop
 
 __LOADScanExit:

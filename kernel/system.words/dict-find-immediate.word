@@ -1,0 +1,10 @@
+; @immediate dictionary.find.immediate
+
+		call 	PARSEGetNextWord									; get the word to find.
+		jr 		c,__findFails 										; nothing in the parse buffer
+		call 	DICTFindWord 										; and try to find it
+		call 	COMUTLConstantCode									; compile as a constant
+		ret
+
+__findFails:
+		db 		"No word to find in dictionary.find.xxxx",0

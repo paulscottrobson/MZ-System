@@ -1,0 +1,3 @@
+; @immediate parse.get.define.word.immediate
+
+		jp 	__ParseGetDefineWord:
