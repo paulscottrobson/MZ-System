@@ -1,0 +1,291 @@
+// ***********************************************************************************************
+// ***********************************************************************************************
+//
+//		Name : 		core.mz
+//		Purpose : 	Core Libraries
+//		Author :	Paul Robson (paul@robsons.org.uk)
+//		Date : 		5th November 2018
+//
+// ***********************************************************************************************
+// ***********************************************************************************************
+
+// ***********************************************************************************************
+//
+//									  private/protected mods
+//
+// ***********************************************************************************************
+
+:: private 128 dict.xor.type {ret}
+:: protected 64 dict.xor.type {ret}
+
+// ***********************************************************************************************
+//
+//										Return
+//
+// ***********************************************************************************************
+
+:: ; 	[ret] 									// code that compiles <ret>
+		{ret} 									// inline actual ret code.
+ protected
+ 
+// ***********************************************************************************************
+//
+//								Insert a CSpect Breakpoint
+//
+// ***********************************************************************************************
+
+:: break 221 c, 1 c, ; 
+
+// ***********************************************************************************************
+//
+//									Binary Arithmetic
+//
+// ***********************************************************************************************
+
+:: + [add_hl,de] ;
+:: - [push_de] [ex_de,hl] [xor_a] [sbc_hl,de] [pop_de] ;
+
+//	These compile the code shown, inline.
+
+: and {ld_a,d} {and_h} {ld_h,a} {ld_a,e} {and_l} {ld_l,a} ;
+: xor {ld_a,d} {xor_h} {ld_h,a} {ld_a,e} {xor_l} {ld_l,a} ;
+: or  {ld_a,d} {or_h}  {ld_h,a} {ld_a,e} {or_l}  {ld_l,a} ;
+
+// ***********************************************************************************************
+//
+//									 Unary Arithmetic
+//
+// ***********************************************************************************************
+
+: not {ld_a,h} {cpl} {ld_h,a} {ld_a,l} {cpl} {ld_l,a} ;
+: 0-  {ld_a,h} {cpl} {ld_h,a} {ld_a,l} {cpl} {ld_l,a} {inc_hl} ;
+
+: 0=  {ld_a,h} {or_l} {ld_hl,aaaa} &0 &0 {ret_nz} {dec_hl} ;
+: 0<  {bit_7,h}       {ld_hl,aaaa} &0 &0 {ret_z} {dec_hl} ;
+
+: abs {bit_7,h} {ret_z} {ld_a,h} {cpl} {ld_h,a} {ld_a,l} {cpl} {ld_l,a} {inc_hl} ;
+
+:: 1+ [inc_hl] ;
+:: 2+ [inc_hl] [inc_hl] ;
+:: 1- [dec_hl] ;
+:: 2- [dec_hl] [dec_hl] ;
+
+:: 2* [add_hl,hl] ;
+:: 4* [add_hl,hl] [add_hl,hl] ;
+:: 8* [add_hl,hl] [add_hl,hl] [add_hl,hl] ;
+:: 16* [add_hl,hl] [add_hl,hl] [add_hl,hl] [add_hl,hl] ;
+:: 256* [ld_h,l] [ld_l,dd] 0 c, ;
+
+:: 2/ [sra_h] [rr_l] ;
+:: 4/ [sra_h] [rr_l] [sra_h] [rr_l] ;
+: 16/ 4/ 4/ ;
+: 256/ {ld_l,h} {ld_h,dd} &0 {bit_7,l} {ret_z} {dec_h} ;
+
+:: bswap [ld_a,h] [ld_h,l] [ld_l,a] ;
+
+// ***********************************************************************************************
+//
+//									 Register operations
+//
+// ***********************************************************************************************
+
+:: a>b [ld_d,h] [ld_e,l] ;
+:: a>c [ld_b,h] [ld_c,l] ;
+
+:: b>a [ld_h,d] [ld_l,e] ;
+:: b>c [ld_b,d] [ld_c,e] ;
+
+:: c>b [ld_d,b] [ld_e,d] ;
+:: c>a [ld_h,b] [ld_l,c] ;
+
+:: swap [ex_de,hl] ;
+
+// ***********************************************************************************************
+//
+//									 Stack operations
+//
+// ***********************************************************************************************
+
+:: abc>r [push_bc] [push_de] [push_hl] ; protected
+:: r>abc [pop_hl] [pop_de] [pop_bc] ; protected
+
+:: ab>r [push_de] [push_hl] ; protected
+:: r>ab [pop_hl] [pop_de] ; protected
+
+:: a>r [push_hl] ; protected
+:: r>a [pop_hl] ; protected
+:: b>r [push_de] ; protected
+:: r>b [pop_de] ; protected
+:: c>r [push_bc] ; protected
+:: r>c [pop_bc] ; protected
+
+// ***********************************************************************************************
+//
+//									   8 bit clock
+//
+// ***********************************************************************************************
+
+:: tick.count.8
+	[ex_de,hl] [ld_hl,(aaaa)] 23672 , ;
+
+// ***********************************************************************************************
+//
+//									   Z80 Port I/O
+//
+// ***********************************************************************************************
+
+: p@ {push_bc} {ld_c,l} {ld_b,h} {in_l,(c)} {ld_h,dd} &0 {pop_bc} ;
+: p! {push_bc} {ld_c,l} {ld_b,h} {out_(c),l} {pop_bc} ;
+
+// ***********************************************************************************************
+//
+//									  Memory read/write
+//
+// ***********************************************************************************************
+
+:: c! 	[ld_(hl),e] ;
+:: !   	[ld_(hl),e] [inc_hl] [ld_(hl),d] [dec_hl] ;
+
+:: c@ 	[ld_l,(hl)] [ld_h,dd] 0 c, ;
+:: @ 	[ld_a,(hl)] [inc_hl] [ld_h,(hl)] [ld_l,a] ;
+
+: +! 	{ld_a,(hl)} {add_a,e} {ld_(hl),a} {inc_hl} 
+		{ld_a,(hl)} {adc_a,d} {ld_(hl),a} {dec_hl}  ;
+
+
+// ***************************************************************************************
+//
+//				Access address of code variable and code variable itself.
+//
+// ***************************************************************************************
+
+: h 	sys.info ; protected
+: here  h @ ; protected
+
+// ***************************************************************************************
+//
+//								  Variable system
+//
+// ***************************************************************************************
+
+:: variable 
+	dictionary.add.entry [ret]
+	0 ,
+;
+
+: variable.check private
+	{ld_a,h} {or_l} {ret_nz} "Unknown_variable error.handler
+;
+
+//
+//			These prefixes allow better code for reading and writing variables to be created
+//
+:: &&
+		235 c, 33 c, 
+		parser.get.word.check 
+		dictionary.find variable.check 1+ ,		
+;
+
+:: @@
+		235 c, 42 c, 
+		parser.get.word.check 
+		dictionary.find variable.check 1+ ,		
+;
+
+:: !!
+		34 c, 
+		parser.get.word.check 
+		dictionary.find variable.check 1+ ,		
+;
+
+// ***************************************************************************************
+//
+//									[-]If Then
+//
+// ***************************************************************************************
+
+variable if.branch.address 									// The address of the jump address goes here
+
+: if.not.completed "Missing_then_for_if error.handler ;
+
+:: if
+		124 c, 181 c, 										// ld a,h / or l
+		202 c, 												// jp z,
+		here !! if.branch.address 							// save this position so we can patch this.
+		"if.not.completed dictionary.find , 				// will cause error if we forget to close it.
+;
+
+:: -if
+		203 c, 124 c, 										// bit 7,h
+		202 c, 												// jp z,
+		here !! if.branch.address 							// save this position so we can patch this.
+		"if.not.completed dictionary.find , 				// will cause error if we forget to close it.
+;
+
+:: then 
+		here @@ if.branch.address ! 						// patch the JP Z to come here.
+;
+
+// ***************************************************************************************
+//
+//									Min and Max
+//
+// ***************************************************************************************
+
+: min b>r a>r < if r>a r>b b>a ; then r>a r>b ;
+: max b>r a>r > if r>a r>b b>a ; then r>a r>b ;
+
+// ***************************************************************************************
+//
+//							  Begin ... [-]Until / Again
+//
+// ***************************************************************************************
+
+variable begin.branch.address 								// We jump back here
+
+:: begin
+		here !! begin.branch.address 						// save where we're going.
+;
+
+:: again
+		195 c, @@ begin.branch.address , 					// compile JP loop
+;
+
+:: until
+		124 c, 181 c, 										// ld a,h / or l
+		202 c, @@ begin.branch.address ,					// jp z, (loop)
+;
+
+:: -until
+		203 c, 124 c, 										// bit 7,h
+		202 c, @@ begin.branch.address ,					// jp z, (loop)
+;
+
+// ***************************************************************************************
+//
+//		  For .. Next . Our loop counts down from n-1 to zero, and A = index at
+//		  the start of each loop
+//
+//		  I get index only works if you haven't pushed values on the return stack.
+//
+// ***************************************************************************************
+
+variable for.branch.address
+
+:: for
+		here !! for.branch.address
+		43 c, 												// dec hl
+		229 c, 												// push hl
+;
+
+:: next
+		225 c, 												// pop hl
+		124 c, 181 c, 										// ld a,h / or l
+		194 c, @@ for.branch.address ,						// jp nz, (loop)
+;
+
+:: i 	
+		235 c, 												// ex de,hl		
+		225 c, 												// pop hl
+		229 c, 												// push hl
+;

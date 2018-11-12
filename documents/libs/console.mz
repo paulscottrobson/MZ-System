@@ -1,0 +1,156 @@
+// ********************************************************************************************************
+// ********************************************************************************************************
+//
+//		Name :		console.mz
+//		Author :	Paul Robson (paul@robsons.org.uk)
+//		Purpose :	Console I/O 
+//		Date :		3rd November 2018
+//
+// ********************************************************************************************************
+// ********************************************************************************************************
+
+variable con.offset  							// Offset on the screen.
+variable con.width  							// Screen width
+variable con.base 								// Base for numbers
+variable con.bottom								// end of screen.
+variable con.current.key 						// current key status
+
+// ************************************************************************************************
+//							Number of lines in editing space/screen height
+// ************************************************************************************************
+
+: con.edit.size 4 ;								// Number of editing lines
+
+: con.screen.height 							// Height of the draw area
+	a>r sys.info 40 + @ con.edit.size - 1- r>b 
+;
+
+// ************************************************************************************************
+//									Clear Screen, Home Cursor
+// ************************************************************************************************
+
+: con.clear
+	abc>r 
+		0 io.raw.print  						// Physically clear
+		0 !! con.offset  						// Reset x,y,offset
+		160 io.raw.print 						// Draw the cursor
+		sys.info 36 + @ !! con.width  			// Screen width
+		con.screen.height * !! con.bottom  		// Full Size of Screen.
+	r>abc
+;
+
+// ************************************************************************************************
+//			   				 Emit character in current colour, no CR etc.
+// ************************************************************************************************
+
+: con.emit.raw
+	abc>r 
+		a>r 
+		@@ con.offset io.raw.move  				// Position it.
+		r>a io.raw.print 160 io.raw.print  		// Print char then cursor
+		1 && con.offset +!						// Bump position
+		@@ con.offset @@ con.bottom  = 			// Reached the bottom
+		if con.clear then 						// Clear the screen
+	r>abc
+;
+
+// ************************************************************************************************
+//										Carriage Return
+// ************************************************************************************************
+
+: con.cr
+	abc>r
+		begin 
+			32 con.emit.raw						// Space
+			@@ con.width 1- @@ con.offset and 	// use and not mod for speed requires 2^ width
+		0= until 
+	r>abc 
+;
+
+// ************************************************************************************************
+//										Emit space, spaces
+// ************************************************************************************************
+
+: con.space abc>r 32 con.emit.raw r>abc ;					// Print out 1 space
+: con.spaces abc>r if for con.space next then r>abc ;		// Print out A spaces
+
+// ************************************************************************************************
+//								  Emit (7 bit ASCII, supports CR)
+// ************************************************************************************************
+
+: con.emit 
+	abc>r 
+		13 = if con.cr r>abc ; then swap con.emit.raw
+	r>abc ;
+
+// ************************************************************************************************
+//								  Set colours by number or by name
+// ************************************************************************************************
+
+: con.colour io.raw.colour ; 	
+
+: con.red abc>r 1 con.colour r>abc ;				
+: con.blue abc>r 2 con.colour r>abc ;				
+: con.magenta abc>r 3 con.colour r>abc ;				
+: con.green abc>r 4 con.colour r>abc ;				
+: con.cyan abc>r 5 con.colour r>abc ;				
+: con.yellow abc>r 6 con.colour r>abc ;				
+: con.white abc>r 7 con.colour r>abc ;				
+
+// ************************************************************************************************
+//											Print String
+// ************************************************************************************************
+
+: con.print.string 	
+	abc>r 
+		1- a>b
+		begin
+			b>a 1+ a>b c@ if con.emit then
+		0= until
+	r>abc
+;
+
+// ************************************************************************************************
+//											Print Integer
+// ************************************************************************************************
+
+: con.print.digit private
+	15 and 10 >= if swap 7 + swap then swap 48 + con.emit 	// Print digit in 0-9a-f fomat
+;
+
+: con.print.integer private
+	@@ con.base abc>r / if con.print.integer then 			// divide by base, recurse if nonzero
+	r>abc mod con.print.digit 								// restore, modulus, print digit
+;
+
+: con.print.hex 
+	abc>r con.space 16 !! con.base swap con.print.integer r>abc ;
+: con.print.dec 
+	abc>r con.space 10 !! con.base  swap con.print.integer r>abc ;	
+: con.print.bin
+	abc>r con.space 2 !! con.base swap con.print.integer r>abc ;	
+
+: con.print.byte 
+	abc>r a>r 16/ con.print.digit r>a con.print.digit r>abc
+;
+
+: con.print.word
+	bswap con.print.byte bswap con.print.byte
+;
+
+// ************************************************************************************************
+//										Get a keystroke
+// ************************************************************************************************
+
+: con.getkey.changed private
+	begin inkey @@ con.current.key <> until 
+	swap !! con.current.key 
+;
+
+: con.getkey
+	a>r
+	begin con.getkey.changed until 
+	r>b 
+;
+
+

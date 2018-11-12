@@ -1,0 +1,151 @@
+// ********************************************************************************************************
+// ********************************************************************************************************
+//
+//		Name :		editor.mz
+//		Author :	Paul Robson (paul@robsons.org.uk)
+//		Purpose :	Editor code
+//		Date :		4th November 2018
+//
+// ********************************************************************************************************
+// ********************************************************************************************************
+
+variable editor.start 											// Start position on screen
+variable editor.size 											// Size of edit area on screen
+variable editor.width 											// Line width
+variable editor.cursor 											// Cursor position.
+variable editor.key 											// Key pressed
+
+// ********************************************************************************************************
+//
+//										<yPosition> <height> editor.setup
+//
+// ********************************************************************************************************
+
+: editor.setup
+	abc>r
+		b>r a>r
+		sys.info 36 + @ !! editor.width 						// Get screen width
+		r>b * !! editor.size 									// Size of edit space
+		r>a @@ editor.width * !! editor.start 					// Calculate start pos
+		0 !! editor.cursor 										// Reset cursor
+	r>abc
+;
+
+// ********************************************************************************************************
+//
+//											Clear Buffer
+//
+// ********************************************************************************************************
+
+: editor.clear.buffer
+	abc>r
+		edit.buffer.size a>c 32 edit.buffer fill
+	r>abc
+;
+
+// ********************************************************************************************************
+//
+//										Refresh the main display
+//
+// ********************************************************************************************************
+
+: editor.refresh private
+	@@ editor.size 1- 											// Force into range.
+	@@ editor.cursor min 0 max !! editor.cursor
+	@@ editor.start io.raw.move 								// Move to start
+	con.green
+	edit.buffer @@ editor.size for 								// Print buffer in green
+		b>a c@ io.raw.print swap 1+ swap
+	next 
+	@@ editor.start @@ editor.cursor + io.raw.move 				// Reprint cursor char in white
+	con.yellow @@ editor.cursor edit.buffer + c@ 128 + io.raw.print
+	edit.buffer @@ editor.size + 0 swap c! 						// make it ASCIIZ
+;
+
+// ********************************************************************************************************
+//
+//									If key was A move cursor by B
+//
+// ********************************************************************************************************
+
+: editor.cursor.move private
+	b>c @@ editor.key = if c>a && editor.cursor +! then
+;
+
+// ********************************************************************************************************
+//
+//										Convert A to lower case
+//
+// ********************************************************************************************************
+
+: editor.tolower private
+	b>r c>r
+	a>c 65 >= a>r c>a 97 <= r>b and if c>a 32 + a>c then c>a
+	r>c r>b
+;
+
+// ********************************************************************************************************
+//		
+//										Insert character
+//
+// ********************************************************************************************************
+
+: editor.insert.character private
+	@@ editor.size @@ editor.cursor - a>c
+	@@ editor.cursor edit.buffer + a>b 1+ copy
+	swap @@ editor.key editor.tolower swap c! 
+	1 && editor.cursor +!
+;
+
+// ********************************************************************************************************
+//
+//											Backspace
+//
+// ********************************************************************************************************
+
+: editor.delete.character private
+	@@ editor.cursor if
+		-1 && editor.cursor +!
+		@@ editor.size @@ editor.cursor - a>c
+		@@ editor.cursor edit.buffer + a>b 1+ swap copy
+		@@ editor.size 1- edit.buffer + 32 swap c!
+	then
+;
+
+// ********************************************************************************************************
+//
+//											Return
+//
+// ********************************************************************************************************
+
+: editor.return private
+	@@ editor.width 1- not @@ editor.cursor and
+	@@ editor.width + !! editor.cursor 
+;
+
+// ********************************************************************************************************
+//
+//						Main loop - exits with A as last key pressed
+//
+// ********************************************************************************************************
+
+: editor.main.loop private
+	editor.refresh con.getkey !! editor.key 					// refresh get cursor
+	-1 20 editor.cursor.move 									// check cursor moves.
+	@@ editor.width 21 editor.cursor.move
+	@@ editor.width 0- 22 editor.cursor.move
+	1 23 editor.cursor.move
+	@@ editor.key 32 >= if editor.insert.character then 		// check insert character
+	@@ editor.key 8 = if editor.delete.character then 			// check backspace
+	@@ editor.key 13 = if editor.return then					// check return
+	@@ editor.key
+;
+
+// ********************************************************************************************************
+//
+//				Edit buffer in screen mode (Shift+Return exits) line mode (Return exits)
+//
+// ********************************************************************************************************
+
+: editor.screen abc>r begin editor.main.loop 27 = until r>abc ;
+: editor.line abc>r begin editor.main.loop 13 = until r>abc ;
