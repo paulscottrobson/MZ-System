@@ -1,0 +1,10 @@
+; @immediate :
+		call 	DICTGetWordAddDictionary
+		ld 		a,$CD
+		call	FARCompileByte
+		ld 		hl,COMHCreateCallToCode
+		call 	FARCompileWord
+		ret
+
+		
+

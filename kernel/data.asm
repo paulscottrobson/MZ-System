@@ -50,11 +50,11 @@ IOColour: 											; writing colour
 		db 		7
 PARSEPointer:										; Parsing position
 		dw 		0
-DICTLastDefinedWord: 								; Address of last defined word.
-		dw 		0		
 
-IsCompilerMode: 									; if 0 execute words, <> 0 compile them.
-		db 		0 
+PAGEStackPointer:
+		dw 		0
+PAGEStackBase:
+		ds 		8
 
 ARegister: 											; Register for doing commands in context.
 		dw 		0

@@ -1,1 +1,6 @@
-debug @ 42 halt
+: test1 33 10 * ;
+: test2 4 ;
+
+:: test test1 test2 + debug halt test1 ;
+
+test

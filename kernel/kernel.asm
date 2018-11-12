@@ -18,7 +18,6 @@ DictionaryPage = $20 								; dictionary page
 BootstrapPage = $22 								; page containing bootstrapped text.
 FirstCodePage = $24									; first code page
 
-			include "macros.asm"
 
 			opt 	zxnextreg
 			org 	$8000
@@ -31,8 +30,7 @@ Boot:		ld 		sp,(SIStack)					; reset Z80 Stack
 			nextreg	7,2								; set turbo port (7) to 2 (14Mhz)
 			call 	SetMode48k 						; initialise and clear screen.
 			ld 		a,(SIBootCodePage) 				; get the page to start
-			setMemoryPageA
-			ex 		af,af' 							; set the current code page in A'
+			call 	PAGEInitialise 
 			ld 		hl,(SIBootCodeAddress)
 			jp 		(hl)
 

@@ -1,15 +1,5 @@
 ; @codeonly
 
-; ********************************************************************************************************
-; ********************************************************************************************************
-;
-;		Name : 		parser.word
-;		Author : 	Paul Robson (paul@robsons.org.uk)
-;		Purpose : 	Source parser
-;		Date : 		5th November 2018
-;
-; ********************************************************************************************************
-; ********************************************************************************************************
 
 ; ********************************************************************************************************
 ;
@@ -45,7 +35,7 @@ __PARSESkipOverWord:
 		cp 		' '+1
 		jr 		nc,__PARSESkipOverWord
 		dec 	hl 									; go back to the null/space
-		ld 	(PARSEPointer),hl 						; write the pointer back
+		ld 		(PARSEPointer),hl 					; write the pointer back
 
 		xor 	a 									; clear carry
 		pop 	hl 									; HL points to the start of the word

@@ -24,14 +24,14 @@ LOADBootstrap:
 		push 	ix
 		ld 		hl,__LOADBoot
 		call 	PrintString
+		ld 		a,BootstrapPage 					; set the current page to bootstrap page.
+		call 	PAGESwitch
 		ld 		ix,$C000 							; current section being loaded.
 ;
 ;		Once here for every 'chunk'. We copy the text to the editor buffer in 
 ;		chunks (currently 1024 bytes) until we've done all 16k of the page.
 ;
 __LOADBootLoop:
-		ld 		a,BootstrapPage 					; set the current page to bootstrap page.
-		setMemoryPageA
 
 		push 	ix 									; HL = Current Section
 		pop 	hl

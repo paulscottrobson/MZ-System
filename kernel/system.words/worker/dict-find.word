@@ -12,7 +12,7 @@ DICTFindWord:
 		push 	ix
 
 		ld 		a,DictionaryPage 				; switch to dictionary page
-		setMemoryPageA
+		call 	PAGESwitch
 
 		ld 		ix,$C000 						; dictionary start			
 __DICTFindMainLoop:
@@ -59,6 +59,9 @@ __DICTFindFail:
 		ld 		hl,$0000
 		scf 									; set carry flag
 __DICTFindExit:
+		push 	af
+		call 	PAGERestore
+		pop 	af
 		pop 	ix 								; pop registers and return.
 		pop 	bc
 		ret

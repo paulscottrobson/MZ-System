@@ -1453,18 +1453,22 @@ __mzdefine_6e_6f_74:
   ret
 
 ; ---------------------------------------------------------
+; Name : c, Type : word
+; ---------------------------------------------------------
+
+__mzdefine_63_2c:
+    call COMHCreateCallToCode
+  ld   a,l
+  jp    FARCompileByte
+
+; ---------------------------------------------------------
 ; Name :  Type : codeonly
 ; ---------------------------------------------------------
 
-; if this is ever converted to a call routine the original AF needs stacking as well, as it's
-; lost in the Call to EHL
 ; ***********************************************************************************************
 ; ***********************************************************************************************
 ;
-;  Name :   compiler.word
-;  Purpose :  Word Compiler
-;  Author : Paul Robson (paul@robsons.org.uk)
-;  Date :   5th November 2018
+;         Compile word at HL
 ;
 ; ***********************************************************************************************
 ; ***********************************************************************************************
@@ -1473,7 +1477,6 @@ COMCompileWord:
   push  de
   push  hl
   push  hl        ; save word address
-  db  $DD,$01
   call  DICTFindWord      ; try to find it
   pop  bc         ; restore word address to BC
   jr   nc,__COMCWWordFound
@@ -1503,21 +1506,9 @@ __COMCWConstant:
   jr   __COMCWExit
 
 ; ---------------------------------------------------------
-; Name : string.to.int Type : word
+; Name :  Type : codeonly
 ; ---------------------------------------------------------
 
-__mzdefine_73_74_72_69_6e_67_2e_74_6f_2e_69_6e_74:
-    call COMHCreateCallToCode
-; ***********************************************************************************************
-; ***********************************************************************************************
-;
-;  Name :   constant.word
-;  Purpose :  ASCII -> Integer convert.
-;  Author : Paul Robson (paul@robsons.org.uk)
-;  Date :   5th November 2018
-;
-; ***********************************************************************************************
-; ***********************************************************************************************
 ; ***********************************************************************************************
 ;
 ;   Convert ASCIIZ string at HL to constant in HL. DE 0, Carry Clear if true
@@ -1583,6 +1574,122 @@ __CONConFail:           ; didn't convert
 
 ; ***********************************************************************************************
 ;
+;         Generate code for constant in HL
+;
+; ***********************************************************************************************
+COMUTLConstantCode:
+  ld   a,$EB         ; ex de,hl
+  call  FARCompileByte
+  ld   a,$21         ; ld hl,const
+  call  FARCompileByte
+  call  FARCompileWord       ; compile the constant
+  ret
+; ***********************************************************************************************
+;
+;    Compile code to call EHL from current compile position
+;
+; ***********************************************************************************************
+COMUTLCodeCallEHL:
+  ld   a,$CD         ; call <Address>
+  call  FARCompileByte
+  call  FARCompileWord       ; compile the constant
+  ret
+; ***********************************************************************************************
+;
+;         Execute code at EHL
+;
+; ***********************************************************************************************
+COMUTLExecuteEHL:
+  ld   a,e         ; switch to that page
+  call  PAGESwitch
+  ld   de,COMUTLExecuteExit     ; push after code address
+  push  de
+  push  hl          ; push call address
+  ld   hl,(ARegister)       ; load registers
+  ld   de,(BRegister)
+  ld   bc,(CRegister)
+  ret           ; execute the call
+COMUTLExecuteExit:
+  ld   (CRegister),bc       ; save registers
+  ld   (BRegister),de
+  ld   (ARegister),hl
+  call  PAGERestore
+  ret
+; ***********************************************************************************************
+;
+;  Copy a macro. The return address points to ld a,<count> followed by the macro contents
+;  Note only the lower 4 bits of the count are valid.
+;
+; ***********************************************************************************************
+COMHCopyFollowingCode:
+  pop  hl           ; get return address
+  ld   a,(hl)          ; get count in bits 0..3
+  and  15
+  ld   b,a
+__COMHCFCLoop:            ; copy bytes
+  inc  hl
+  ld   a,(hl)
+  call  FARCompileByte
+  djnz  __COMHCFCLoop
+  ret
+; ***********************************************************************************************
+;
+;   Create a call to the code following this caller. It is running in page A'
+;
+; ***********************************************************************************************
+COMHCreateCallToCode:
+  pop  hl           ; get the address of the code.
+  call  COMUTLCodeCallEHL       ; compile a call to E:HL from here.
+  ret
+
+; ---------------------------------------------------------
+; Name : , Type : word
+; ---------------------------------------------------------
+
+__mzdefine_2c:
+    call COMHCreateCallToCode
+  jp  FARCompileWord
+
+; ---------------------------------------------------------
+; Name : :: Type : immediate
+; ---------------------------------------------------------
+
+__mzdefine_3a_3a:
+  call  DICTGetWordAddDictionary
+  ret
+DICTGetWordAddDictionary:
+  push de
+  push  hl
+  call  PARSEGetNextWord      ; get the next word.
+  jr   c,__GWADError       ; nothing to get.
+  call  DICTAddWord       ; add it to the dictionary.
+  pop  hl
+  pop  de
+  ret
+__GWADError:           ; nothing to get.
+  ld   hl,__GWADMessage
+  jp   ErrorHandler
+__GWADMessage:
+  db   "No word available for definition",0
+
+; ---------------------------------------------------------
+; Name : : Type : immediate
+; ---------------------------------------------------------
+
+__mzdefine_3a:
+  call  DICTGetWordAddDictionary
+  ld   a,$CD
+  call FARCompileByte
+  ld   hl,COMHCreateCallToCode
+  call  FARCompileWord
+  ret
+
+; ---------------------------------------------------------
+; Name :  Type : codeonly
+; ---------------------------------------------------------
+
+; ***********************************************************************************************
+;
 ;   Find word in dictionary. HL points to name, on exit, HL is the address, D the
 ;   type ID and E the page number with CC if found, CS set and HL=DE=0 if not found.
 ;
@@ -1591,7 +1698,7 @@ DICTFindWord:
   push  bc         ; save registers - return in DEHL Carry
   push  ix
   ld   a,DictionaryPage     ; switch to dictionary page
-  setMemoryPageA
+  call  PAGESwitch
   ld   ix,$C000       ; dictionary start
 __DICTFindMainLoop:
   ld   a,(ix+0)      ; examine offset, exit if zero.
@@ -1631,6 +1738,9 @@ __DICTFindFail:
   ld   hl,$0000
   scf          ; set carry flag
 __DICTFindExit:
+  push  af
+  call  PAGERestore
+  pop  af
   pop  ix         ; pop registers and return.
   pop  bc
   ret
@@ -1640,15 +1750,67 @@ __DICTFindExit:
 ; ---------------------------------------------------------
 
 ; ***********************************************************************************************
-; ***********************************************************************************************
 ;
-;  Name :   farmemory.word
-;  Purpose :  Far Memory code
-;  Author : Paul Robson (paul@robsons.org.uk)
-;  Date :   5th November 2018
+;  Add Dictionary Word. Name is string at HL ends in <= ' ', uses the current page/pointer
+;  values.
 ;
 ; ***********************************************************************************************
-; ***********************************************************************************************
+DICTAddWord:
+  push  af          ; registers to stack.
+  push  bc
+  push  de
+  push hl
+  push  ix
+  push  hl          ; put length of string in B
+  ld   b,-1
+__DICTAddGetLength:
+  ld   a,(hl)
+  inc  hl
+  inc  b
+  cp   ' '+1
+  jr   nc,__DICTAddGetLength
+  pop  hl
+  ld   a,DictionaryPage     ; switch to dictionary page
+  call  PAGESwitch
+  ld   ix,$C000       ; IX = Start of dictionary
+__DICTFindEndDictionary:
+  ld   a,(ix+0)        ; follow down chain to the end
+  or   a
+  jr   z,__DICTCreateEntry
+  ld   e,a
+  ld   d,0
+  add  ix,de
+  jr   __DICTFindEndDictionary
+__DICTCreateEntry:
+  ld   a,b
+  add  a,5
+  ld   (ix+0),a        ; offset is length + 5
+  ld   a,(SINextFreeCodePage)    ; code page
+  ld   (ix+1),a
+  ld   de,(SINextFreeCode)     ; code address
+  ld   (ix+2),e
+  ld   (ix+3),d
+  ld   (ix+4),b        ; length
+  ex   de,hl         ; put name in DE
+__DICTAddCopy:
+  ld   a,(de)         ; copy byte over as 7 bit ASCII.
+  ld   (ix+5),a
+  inc  de
+  inc  ix
+  djnz __DICTAddCopy       ; until string is copied over.
+  ld   (ix+5),0        ; write end of dictionary zero.
+  call  PAGERestore
+  pop  ix          ; restore and exit
+  pop  hl
+  pop  de
+  pop  bc
+  pop  af
+  ret
+
+; ---------------------------------------------------------
+; Name :  Type : codeonly
+; ---------------------------------------------------------
+
 ; ***********************************************************************************************
 ;
 ;        Byte compile far memory A
@@ -1659,12 +1821,13 @@ FARCompileByte:
   push  hl
   push  af          ; save byte
   ld  a,(SINextFreeCodePage)     ; switch to page
-  setMemoryPageA
+  call  PAGESwitch
   ld   hl,(SINextFreeCode)     ; write to memory location
   pop  af
   ld   (hl),a
   inc  hl          ; bump memory location
   ld   (SINextFreeCode),hl     ; write back
+  call  PAGERestore
   pop  hl          ; restore and exit
   pop  af
   ret
@@ -1679,13 +1842,14 @@ FARCompileWord:
   push  hl
   ex   de,hl         ; word into DE
   ld  a,(SINextFreeCodePage)     ; switch to page
-  setMemoryPageA
+  call  PAGESwitch
   ld   hl,(SINextFreeCode)     ; write to memory location
   ld   (hl),e
   inc  hl
   ld   (hl),d
   inc  hl
   ld   (SINextFreeCode),hl     ; write back
+  call  PAGERestore
   pop  hl
   pop  de          ; restore and exit
   pop  af
@@ -1717,14 +1881,14 @@ LOADBootstrap:
   push  ix
   ld   hl,__LOADBoot
   call  PrintString
+  ld   a,BootstrapPage      ; set the current page to bootstrap page.
+  call  PAGESwitch
   ld   ix,$C000        ; current section being loaded.
 ;
 ;  Once here for every 'chunk'. We copy the text to the editor buffer in
 ;  chunks (currently 1024 bytes) until we've done all 16k of the page.
 ;
 __LOADBootLoop:
-  ld   a,BootstrapPage      ; set the current page to bootstrap page.
-  setMemoryPageA
   push  ix          ; HL = Current Section
   pop  hl
   ld   de,EditBuffer        ; Copy to edit buffer 1k of code.
@@ -1809,15 +1973,67 @@ __LOADBoot:
 ; ---------------------------------------------------------
 
 ; ********************************************************************************************************
-; ********************************************************************************************************
 ;
-;  Name :   parser.word
-;  Author :  Paul Robson (paul@robsons.org.uk)
-;  Purpose :  Source parser
-;  Date :   5th November 2018
+;          Initialise Paging, set current to A
 ;
 ; ********************************************************************************************************
+PAGEInitialise:
+  nextreg $56,a         ; switch to page A
+  inc  a
+  nextreg $57,a
+  dec  a
+  ex   af,af'         ; put page in A'
+  ld   hl,PAGEStackBase      ; reset the page stack
+  ld   (PAGEStackPointer),hl
+  ret
 ; ********************************************************************************************************
+;
+;          Switch to a new page A
+;
+; ********************************************************************************************************
+PAGESwitch:
+  push  af
+  push  hl
+  push  af          ; save A on stack
+  ld   hl,(PAGEStackPointer)     ; put A' on the stack, the current page
+  ex   af,af'
+  ld   (hl),a
+  inc  hl
+  ld   (PAGEStackPointer),hl
+  pop  af          ; restore new A
+  nextreg $56,a         ; switch to page A
+  inc  a
+  nextreg $57,a
+  dec  a
+  ex   af,af'         ; put page in A'
+  pop  hl
+  pop  af
+  ret
+; ********************************************************************************************************
+;
+;          Return to the previous page
+;
+; ********************************************************************************************************
+PAGERestore:
+  push  af
+  push  hl
+  ld   hl,(PAGEStackPointer)     ; pop the old page off
+  dec  hl
+  ld   a,(hl)
+  ld   (PAGEStackPointer),hl
+  nextreg $56,a         ; switch to page A
+  inc  a
+  nextreg $57,a
+  dec  a
+  ex   af,af'         ; put page in A'
+  pop  hl
+  pop  af
+  ret
+
+; ---------------------------------------------------------
+; Name :  Type : codeonly
+; ---------------------------------------------------------
+
 ; ********************************************************************************************************
 ;
 ;      Set the pointer to the data to be parsed.
@@ -1849,98 +2065,9 @@ __PARSESkipOverWord:
   cp   ' '+1
   jr   nc,__PARSESkipOverWord
   dec  hl          ; go back to the null/space
-  ld  (PARSEPointer),hl       ; write the pointer back
+  ld   (PARSEPointer),hl      ; write the pointer back
   xor  a          ; clear carry
   pop  hl          ; HL points to the start of the word
   ld   b,' '        ; it is type $20 (ASCII ending in null/space)
-  ret
-
-; ---------------------------------------------------------
-; Name :  Type : codeonly
-; ---------------------------------------------------------
-
-; ***********************************************************************************************
-; ***********************************************************************************************
-;
-;  Name :   utilities.word
-;  Purpose :  Utility functions for compiler/executor
-;  Author : Paul Robson (paul@robsons.org.uk)
-;  Date :   5th November 2018
-;
-; ***********************************************************************************************
-; ***********************************************************************************************
-; ***********************************************************************************************
-;
-;         Generate code for constant in HL
-;
-; ***********************************************************************************************
-COMUTLConstantCode:
-  ld   a,$EB         ; ex de,hl
-  call  FARCompileByte
-  ld   a,$21         ; ld hl,const
-  call  FARCompileByte
-  call  FARCompileWord       ; compile the constant
-  ret
-; ***********************************************************************************************
-;
-;    Compile code to call EHL from current compile position
-;
-; ***********************************************************************************************
-COMUTLCodeCallEHL:
-  ld   a,$CD         ; call <Address>
-  call  FARCompileByte
-  call  FARCompileWord       ; compile the constant
-  ret
-; ***********************************************************************************************
-;
-;         Execute code at EHL
-;
-; ***********************************************************************************************
-COMUTLExecuteEHL:
-  ld   a,e         ; switch to that page
-  setMemoryPageA
-  ex   af,af'         ; set A' up for executing it.
-  ld   de,COMUTLExecuteExit     ; push after code address
-  push  de
-  push  hl          ; push call address
-  ld   hl,(ARegister)       ; load registers
-  ld   de,(BRegister)
-  ld   bc,(CRegister)
-  ret           ; execute the call
-COMUTLExecuteExit:
-  ld   (CRegister),bc       ; save registers
-  ld   (BRegister),de
-  ld   (ARegister),hl
-  ret
-; ***********************************************************************************************
-;
-;  Copy a macro. The return address points to ld a,<count> followed by the macro contents
-;  Note only the lower 4 bits of the count are valid.
-;
-; ***********************************************************************************************
-COMHCopyFollowingCode:
-  pop  hl           ; get return address
-  ld   a,(hl)          ; get count in bits 0..3
-  and  15
-  ld   b,a
-__COMHCFCLoop:            ; copy bytes
-  inc  hl
-  ld   a,(hl)
-  call  FARCompileByte
-  djnz  __COMHCFCLoop
-  resetMemoryPage         ; make sure we're going back to the caller.
-  ret
-; ***********************************************************************************************
-;
-;   Create a call to the code following this caller. It is running in page A'
-;
-; ***********************************************************************************************
-COMHCreateCallToCode:
-  ex   af,af'          ; set E to the caller's page, as this is where
-  ld   e,a          ; the code is
-  ex   af,af'
-  pop  hl           ; get code address
-  call  COMUTLCodeCallEHL       ; compile a call to E:HL from here.
-  resetMemoryPage         ; make sure we're going back to the caller.
   ret
 

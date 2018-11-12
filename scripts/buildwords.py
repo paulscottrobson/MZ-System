@@ -48,7 +48,7 @@ for f in fileList:
 	if wName[-9:] == "protected":
 		wName = wName[:-9].strip()
 		isProtected = True
-	assert wType == "word" or wType == "macro" or wType == "codeonly","Bad type for "+f
+	assert wType == "word" or wType == "immediate" or wType == "macro" or wType == "codeonly","Bad type for "+f
 	#
 	#		output information to the composite file
 	#
@@ -65,6 +65,13 @@ for f in fileList:
 	if wType == "word":
 		h.write("{0}:\n".format(scrambleName))
 		h.write("    call COMHCreateCallToCode\n")
+		for s in src[1:]:
+			h.write(s+"\n")
+	#
+	#		output code if immediate word
+	#
+	if wType == "immediate":
+		h.write("{0}:\n".format(scrambleName))
 		for s in src[1:]:
 			h.write(s+"\n")
 	#

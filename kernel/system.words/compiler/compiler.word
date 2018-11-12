@@ -1,15 +1,9 @@
 ; @codeonly
 
-; if this is ever converted to a call routine the original AF needs stacking as well, as it's
-; lost in the Call to EHL
-
 ; ***********************************************************************************************
 ; ***********************************************************************************************
 ;
-;		Name : 		compiler.word
-;		Purpose : 	Word Compiler
-;		Author :	Paul Robson (paul@robsons.org.uk)
-;		Date : 		5th November 2018
+;									Compile word at HL
 ;
 ; ***********************************************************************************************
 ; ***********************************************************************************************
