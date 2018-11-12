@@ -1,0 +1,10 @@
+; @word execute
+
+SetModeExecute:
+		ld 		a,0
+		ld 		(IsCompilerMode),a
+		ret
+
+;
+;		This word is made immediate by makedictionary.py
+;

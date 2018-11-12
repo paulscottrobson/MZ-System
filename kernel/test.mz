@@ -1,1 +1,1 @@
-"hello_world debug 42 c@
+execute 14 4 + debug ; halt

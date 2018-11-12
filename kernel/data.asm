@@ -50,7 +50,19 @@ IOColour: 											; writing colour
 		db 		7
 PARSEPointer:										; Parsing position
 		dw 		0
-		
+DICTLastDefinedWord: 								; Address of last defined word.
+		dw 		0		
+
+IsCompilerMode: 									; if 0 execute words, <> 0 compile them.
+		db 		0 
+
+ARegister: 											; Register for doing commands in context.
+		dw 		0
+BRegister:
+		dw 		0
+CRegister:
+		dw 		0
+
 PageUsage:
 		db 		1									; $20 (dictionary) [1 = system]
 		db 		1 									; $22 (bootstrap code)

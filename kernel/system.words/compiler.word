@@ -15,7 +15,6 @@ COMCompileWord:
 		push 	bc
 		push 	de
 		push 	hl
-		db 		$DD,$01
 		push 	hl								; save word address
 		call 	DICTFindWord 					; try to find it
 		pop 	bc 								; restore word address to BC

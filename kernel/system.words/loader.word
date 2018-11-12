@@ -79,8 +79,16 @@ __LOADScanLoop:
 		call 	PARSEGetNextWord					; try to get next word text@HL type@B
 		jr 		c,__LOADScanExit 					; nothing to get.
 
-		call 	COMCompileWord 						; compile the word at HL
+		ld 		a,(IsCompilerMode)
+		or 		a
+		jr 		nz,__LOADIsCompile
 
+		call 	EXEExecuteWord 						; execute the word at HL
+		jr 		c,__LOADErrorHandler 				; error ?
+		jr 		__LOADScanLoop
+
+__LOADIsCompile:
+		call 	COMCompileWord 						; compile the word at HL
 		jr 		c,__LOADErrorHandler 				; error ?
 		jr 		__LOADScanLoop
 

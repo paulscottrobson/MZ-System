@@ -1398,7 +1398,6 @@ COMCompileWord:
   push  bc
   push  de
   push  hl
-  db   $DD,$01
   push  hl        ; save word address
   call  DICTFindWord      ; try to find it
   pop  bc         ; restore word address to BC
@@ -1572,11 +1571,9 @@ __CONConFail:           ; didn't convert
  ret
 
 ; ---------------------------------------------------------
-; Name : dictionary.find Type : word
+; Name :  Type : codeonly
 ; ---------------------------------------------------------
 
-__mzdefine_64_69_63_74_69_6f_6e_61_72_79_2e_66_69_6e_64_3a_3a_77:
-  jr   DICTFindWord
 ; ***********************************************************************************************
 ;
 ;   Find word in dictionary. HL points to name, on exit, HL is the address, D the
@@ -1631,6 +1628,149 @@ __DICTFindExit:
   pop  ix         ; pop registers and return.
   pop  bc
   ret
+
+; ---------------------------------------------------------
+; Name : get.word.add.dictionary Type : word
+; ---------------------------------------------------------
+
+__mzdefine_67_65_74_2e_77_6f_72_64_2e_61_64_64_2e_64_69_63_74_69_6f_6e_61_72_79_3a_3a_77:
+  push de
+  push  hl
+  call  PARSEGetNextWord      ; get the next word.
+  jr   c,__GWADError       ; nothing to get.
+  call  DICTAddWord       ; add it to the dictionary.
+  resetMemoryPage        ; set the memory page back to A'
+  pop  hl
+  pop  de
+  ret
+__GWADError:           ; nothing to get.
+  ld   hl,__GWADMessage
+  jp   ErrorHandler
+__GWADMessage:
+  db   "No word available for definition",0
+; ***********************************************************************************************
+;
+;  Add Dictionary Word. Name is string at HL ends in <= ' ', uses the current page/pointer
+;  values.
+;
+; ***********************************************************************************************
+DICTAddWord:
+  push  af          ; registers to stack.
+  push  bc
+  push  de
+  push hl
+  push  ix
+  push  hl          ; put length of string in B
+  ld   b,-1
+__DICTAddGetLength:
+  ld   a,(hl)
+  inc  hl
+  inc  b
+  cp   ' '+1
+  jr   nc,__DICTAddGetLength
+  pop  hl
+  ld   a,DictionaryPage     ; switch to dictionary page
+  setMemoryPageA
+  ld   ix,$C000       ; IX = Start of dictionary
+__DICTFindEndDictionary:
+  ld   a,(ix+0)        ; follow down chain to the end
+  or   a
+  jr   z,__DICTCreateEntry
+  ld   e,a
+  ld   d,0
+  add  ix,de
+  jr   __DICTFindEndDictionary
+__DICTCreateEntry:
+  ld   (DICTLastDefinedWord),ix    ; save last defined address.
+  ld   a,b
+  add  a,5
+  ld   (ix+0),a        ; offset is length + 5
+  ld   a,(SINextFreeCodePage)    ; code page
+  ld   (ix+1),a
+  ld   de,(SINextFreeCode)     ; code address
+  ld   (ix+2),e
+  ld   (ix+3),d
+  ld   (ix+4),0        ; type information.
+  ex   de,hl         ; put name in DE
+__DICTAddCopy:
+  ld   a,(de)         ; copy byte over as 7 bit ASCII.
+  ld   (ix+5),a
+  inc  de
+  inc  ix
+  djnz __DICTAddCopy       ; until string is copied over.
+  set  7,(ix+4)        ; set bit 7 of the last character
+  ld   (ix+5),0        ; write end of dictionary zero.
+  pop  ix          ; restore and exit
+  pop  hl
+  pop  de
+  pop  bc
+  pop  af
+  ret
+
+; ---------------------------------------------------------
+; Name :  Type : codeonly
+; ---------------------------------------------------------
+
+; ***********************************************************************************************
+; ***********************************************************************************************
+;
+;  Name :   execute.word
+;  Purpose :  Word Executor
+;  Author : Paul Robson (paul@robsons.org.uk)
+;  Date :   12th November 2018
+;
+; ***********************************************************************************************
+; ***********************************************************************************************
+EXEExecuteWord:
+  push  bc
+  push  de
+  push  hl
+  push  hl        ; save word address
+  call  DICTFindWord      ; try to find it
+  pop  bc         ; restore word address to BC
+  jr   nc,__EXEEWWordFound
+  ld   h,b        ; put back in HL
+  ld   l,c
+  call  CONSTConvert      ; convert it to a constant
+  jr   nc,__EXEEWVariable     ; and insert that value.
+  scf
+__EXEEWExit:
+  pop  hl
+  pop  de
+  pop  bc
+  ret
+;
+;  Word found in dictionary
+;
+__EXEEWWordFound:
+  bit  6,d        ; protected bit set ?
+  jr   nz,__EXEEWProtected
+  ld   a,d
+  cp   14
+  jr   z,__EXEEWVariable
+;
+;  Found a standard word, copy compiler or immediate, all of which we execute.
+;
+  call  COMUTLExecuteEHL      ; execute the word.
+  xor  a          ; exit happy
+  jr   __EXEEWExit
+;
+;  Found a variable - also used to load a constant
+;
+__EXEEWVariable:
+  ld   de,(ARegister)      ; move A->B
+  ld   (BRegister),de
+  ld   (ARegister),hl       ; store value in A
+  xor  a          ; exit happy
+  jr   __EXEEWExit
+;
+;  Tried to execute a protected word.
+;
+__EXEEWProtected:
+  ld   hl,__EXEEWProtectedMsg
+  jp   ErrorHandler
+__EXEEWProtectedMsg:
+  db   "Word is protected",0
 
 ; ---------------------------------------------------------
 ; Name :  Type : codeonly
@@ -1761,6 +1901,13 @@ LOADScanBuffer:
 __LOADScanLoop:
   call  PARSEGetNextWord     ; try to get next word text@HL type@B
   jr   c,__LOADScanExit      ; nothing to get.
+  ld   a,(IsCompilerMode)
+  or   a
+  jr   nz,__LOADIsCompile
+  call  EXEExecuteWord       ; execute the word at HL
+  jr   c,__LOADErrorHandler     ; error ?
+  jr   __LOADScanLoop
+__LOADIsCompile:
   call  COMCompileWord       ; compile the word at HL
   jr   c,__LOADErrorHandler     ; error ?
   jr   __LOADScanLoop
@@ -1801,6 +1948,32 @@ __LOADErrorMessage:
   db   " : Unknown word",0
 __LOADBoot:
   db   "MZ Bootstrap (10-11-18) ",0
+
+; ---------------------------------------------------------
+; Name : compile Type : word
+; ---------------------------------------------------------
+
+__mzdefine_63_6f_6d_70_69_6c_65_3a_3a_77:
+SetModeCompile:
+  ld   a,$FF
+  ld   (IsCompilerMode),a
+  ret
+;
+;  This word is made immediate by makedictionary.py
+;
+
+; ---------------------------------------------------------
+; Name : execute Type : word
+; ---------------------------------------------------------
+
+__mzdefine_65_78_65_63_75_74_65_3a_3a_77:
+SetModeExecute:
+  ld   a,0
+  ld   (IsCompilerMode),a
+  ret
+;
+;  This word is made immediate by makedictionary.py
+;
 
 ; ---------------------------------------------------------
 ; Name :  Type : codeonly
@@ -1898,5 +2071,32 @@ COMUTLExecuteEHL:
   ld   a,e         ; switch to that page
   setMemoryPageA
   ex   af,af'         ; set A' up for executing it.
-  jp   (hl)         ; go do the code.
+  ld   de,COMUTLExecuteExit     ; push after code address
+  push  de
+  push  hl          ; push call address
+  ld   hl,(ARegister)       ; load registers
+  ld   de,(BRegister)
+  ld   bc,(CRegister)
+  ret           ; execute the call
+COMUTLExecuteExit:
+  ld   (CRegister),bc       ; save registers
+  ld   (BRegister),de
+  ld   (ARegister),hl
+  ret
+
+; ---------------------------------------------------------
+; Name : xor.last.type.byte Type : word
+; ---------------------------------------------------------
+
+__mzdefine_78_6f_72_2e_6c_61_73_74_2e_74_79_70_65_2e_62_79_74_65_3a_3a_77:
+  push  ix
+  ld   a,DictionaryPage     ; switch to dictionary page
+  setMemoryPageA
+  ld   ix,(DICTLastDefinedWord)   ; get address of last defined
+  ld   a,l         ; XOR offset 4 (type byte) with L
+  xor  (ix+4)
+  ld   (ix+4),a
+  resetMemoryPage        ; set the memory page back to A'
+  pop  ix
+  ret
 

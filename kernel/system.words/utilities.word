@@ -47,4 +47,16 @@ COMUTLExecuteEHL:
 		ld 		a,e 								; switch to that page
 		setMemoryPageA
 		ex 		af,af' 								; set A' up for executing it.
-		jp 		(hl) 								; go do the code.
+		ld 		de,COMUTLExecuteExit 				; push after code address
+		push 	de
+		push 	hl 									; push call address
+		ld 		hl,(ARegister) 						; load registers
+		ld 		de,(BRegister)
+		ld 		bc,(CRegister)
+		ret 										; execute the call
+COMUTLExecuteExit:
+		ld 		(CRegister),bc 						; save registers
+		ld 		(BRegister),de
+		ld 		(ARegister),hl
+		ret
+		
