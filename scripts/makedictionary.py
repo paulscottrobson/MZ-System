@@ -26,7 +26,7 @@ for l in [x.lower().strip() for x in open("boot.img.vice").readlines() if x.find
 #		Sort them by address
 #
 keys = [x for x in labels.keys()]
-keys.sort(key = lambda x:labels[x])
+keys.sort()
 
 #
 #		For each key (that's not a macro end)
@@ -37,35 +37,11 @@ for l in keys:
 		#		Analyse it
 		#
 		word = "".join([chr(int(x,16)) for x in l.split("_")])
-		isProtected = False
-		if word[-1] == "p":
-			isProtected = True
-			word = word[:-1]
-		wType = word[-1]
-		assert wType == "m" or wType == "w"
-		wName = word[:-3]
-		#print(wType,wName,labels[l])
+		#print(word,labels[l])
 		#
 		#		Add to the physical dictionary in the image
 		#
-		image.addDictionary(wName,image.currentCodePage(),labels[l])
-		#
-		#		Special case. Initially only 'compile' and 'execute' are immediate words.
-		#
-		if wName == "compile" or wName == "execute":
-			image.xorLastTypeByte(15)
-		#
-		#		Set the type byte for macros to the macro length
-		#
-		if wType == "m":
-			size = labels[l+"_end"]-labels[l]
-			assert size <= 6,"Macro size for "+wName+ "??"
-			image.xorLastTypeByte(size)
-		#
-		#		Set protected flag if wanted
-		#
-		if isProtected:
-			image.xorLastTypeByte(0x40)
+		image.addDictionary(word,image.currentCodePage(),labels[l])
 #
 #		Write the image out.
 #

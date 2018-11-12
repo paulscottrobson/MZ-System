@@ -1,5 +1,8 @@
 ; @codeonly
 
+; if this is ever converted to a call routine the original AF needs stacking as well, as it's
+; lost in the Call to EHL
+
 ; ***********************************************************************************************
 ; ***********************************************************************************************
 ;
@@ -21,11 +24,8 @@ COMCompileWord:
 		jr 		nc,__COMCWWordFound
 		ld 		h,b 							; put back in HL
 		ld 		l,c
-		ld 		a,(hl) 							; check for string constant
-		cp 		'"'
-		jr 		z,__COMCWStringConstant
 		call 	CONSTConvert 					; convert it to a constant
-		jr 		nc,__COMCWVariable 				; and compile that value.
+		jr 		nc,__COMCWConstant 				; write code to load that.
 		scf
 __COMCWExit:
 		pop 	hl
@@ -36,81 +36,14 @@ __COMCWExit:
 ;		Word found in dictionary
 ;
 __COMCWWordFound:
-		ld 		a,d
-		or 		a
-		jr 		z,__COMCWStandardWord
-		cp 		15
-		jr 		z,__COMCWImmediate
-		cp 		14
-		jr 		z,__COMCWVariable
-;
-;		Found a copy compiling macro 
-;
-		ld 		b,d 								; count to copy
-__COMCWCopyLoop:
-		ld 		a,(hl)
-		call 	FARCompileByte
-		inc 	hl
-		djnz 	__COMCWCopyLoop
-		xor 	a 									; exit happy
-		jr 		__COMCWExit
-;
-;		Found a standard word
-;
-__COMCWStandardWord:
-		call 	COMUTLCodeCallEHL 					; write the code to call E:HL
-		xor 	a 									; exit happy
-		jr 		__COMCWExit
-;
-;		Found a variable - also used to compile a constant.
-;		
-__COMCWVariable:
-		call 	COMUTLConstantCode 					; compile as constant
-		xor 	a 									; exit happy
-		jr 		__COMCWExit
-;
-;		Found immediate word.
-;		
-__COMCWImmediate:
 		call 	COMUTLExecuteEHL 					; execute the word.
 		xor 	a 									; exit happy
 		jr 		__COMCWExit
 ;
-;		String Constant
+;		Decimal constant found.
 ;
-__COMCWStringConstant:
-		ld 		b,$FF								; calculate length
-		push 	hl
-__COMCWGetLength:
-		inc 	b
-		inc 	hl
-		ld 		a,(hl)
-		cp 		' '+1
-		jr 		nc,__COMCWGetLength
-		ld 		a,$18 								; compile JR <length+1>
-		call 	FARCompileByte
-		ld 		a,b
-		inc 	a
-		call 	FARCompileByte
-		ld 		de,(SINextFreeCode) 				; save address
-		pop 	hl 									; compile string
-__COMCWDoString:
-		ld 		a,b
-		or 		a
-		jr 		z,__COMCWStringDone
-		inc 	hl
-		dec 	b
-		ld 		a,(hl)
-		cp 		'_'
-		jr 		nz,__COMCWNotUnderscore
-		ld 		a,' '
-__COMCWNotUnderscore:
-		call 	FARCompileByte
-		jr 		__COMCWDoString
-__COMCWStringDone:
-		xor 	a
-		call 	FARCompileByte
-		ex 		de,hl
-		jr 		__COMCWVariable
-
+__COMCWConstant:
+		call 	COMUTLConstantCode 					; compile as constant
+		xor 	a 									; exit happy
+		jr 		__COMCWExit
 		

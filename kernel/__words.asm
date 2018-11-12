@@ -2,16 +2,18 @@
 ; Name : + Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_2b_3a_3a_6d:
+__mzdefine_2b:
+    call COMHCopyFollowingCode
+    db __mzdefine_2b_end-__mzdefine_2b-4
   add  hl,de
-__mzdefine_2b_3a_3a_6d_end:
-  ret
+__mzdefine_2b_end:
 
 ; ---------------------------------------------------------
 ; Name : and Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_61_6e_64_3a_3a_77:
+__mzdefine_61_6e_64:
+    call COMHCreateCallToCode
   ld   a,h
   and  d
   ld   h,a
@@ -24,7 +26,8 @@ __mzdefine_61_6e_64_3a_3a_77:
 ; Name : / Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_2f_3a_3a_77:
+__mzdefine_2f:
+    call COMHCreateCallToCode
   push  de
   call  DIVDivideMod16
   ex   de,hl
@@ -35,7 +38,8 @@ __mzdefine_2f_3a_3a_77:
 ; Name : = Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_3d_3a_3a_77:
+__mzdefine_3d:
+    call COMHCreateCallToCode
  ld   a,h
  cp   d
  jr   nz,__COMFalse
@@ -53,7 +57,8 @@ __COMFalse:
 ; Name : > Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_3e_3a_3a_77:
+__mzdefine_3e:
+    call COMHCreateCallToCode
 __COMP_GT:
  ld   a,h
     xor  d
@@ -70,7 +75,8 @@ __Greater:
 ; Name : >= Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_3e_3d_3a_3a_77:
+__mzdefine_3e_3d:
+    call COMHCreateCallToCode
  dec  hl
  jp   __COMP_GT
 
@@ -78,7 +84,8 @@ __mzdefine_3e_3d_3a_3a_77:
 ; Name : < Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_3c_3a_3a_77:
+__mzdefine_3c:
+    call COMHCreateCallToCode
  dec  hl
  jp   __COMP_LE
 
@@ -86,7 +93,8 @@ __mzdefine_3c_3a_3a_77:
 ; Name : <= Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_3c_3d_3a_3a_77:
+__mzdefine_3c_3d:
+    call COMHCreateCallToCode
 __COMP_LE:
  ld   a,h
     xor  d
@@ -103,7 +111,8 @@ __LessEqual:
 ; Name : mod Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_6d_6f_64_3a_3a_77:
+__mzdefine_6d_6f_64:
+    call COMHCreateCallToCode
   push  de
   call  DIVDivideMod16
   pop  de
@@ -113,14 +122,16 @@ __mzdefine_6d_6f_64_3a_3a_77:
 ; Name : * Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_2a_3a_3a_77:
+__mzdefine_2a:
+    call COMHCreateCallToCode
   jp   MULTMultiply16
 
 ; ---------------------------------------------------------
 ; Name : <> Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_3c_3e_3a_3a_77:
+__mzdefine_3c_3e:
+    call COMHCreateCallToCode
  ld   a,h
  cp   d
  jp   nz,__COMTrue
@@ -133,7 +144,8 @@ __mzdefine_3c_3e_3a_3a_77:
 ; Name : or Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_6f_72_3a_3a_77:
+__mzdefine_6f_72:
+    call COMHCreateCallToCode
   ld   a,h
   or   d
   ld   h,a
@@ -146,20 +158,22 @@ __mzdefine_6f_72_3a_3a_77:
 ; Name : - Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_2d_3a_3a_6d:
+__mzdefine_2d:
+    call COMHCopyFollowingCode
+    db __mzdefine_2d_end-__mzdefine_2d-4
   push  de
   ex   de,hl
   xor  a
   sbc  hl,de
   pop  de
-__mzdefine_2d_3a_3a_6d_end:
-  ret
+__mzdefine_2d_end:
 
 ; ---------------------------------------------------------
 ; Name : xor Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_78_6f_72_3a_3a_77:
+__mzdefine_78_6f_72:
+    call COMHCreateCallToCode
   ld   a,h
   xor   d
   ld   h,a
@@ -226,7 +240,8 @@ __IOASCIIExit:
 ; Name : gfx.mode.48k Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_67_66_78_2e_6d_6f_64_65_2e_34_38_6b_3a_3a_77:
+__mzdefine_67_66_78_2e_6d_6f_64_65_2e_34_38_6b:
+    call COMHCreateCallToCode
 SetMode48k:
   call  GFXInitialise48k
   jp   GFXInitialise
@@ -354,7 +369,8 @@ __ZXWCExit:
 ; Name : gfx.mode.layer2 Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_67_66_78_2e_6d_6f_64_65_2e_6c_61_79_65_72_32_3a_3a_77:
+__mzdefine_67_66_78_2e_6d_6f_64_65_2e_6c_61_79_65_72_32:
+    call COMHCreateCallToCode
 SetModeLayer2:
   call  GFXInitialiseLayer2
   jp   GFXInitialise
@@ -513,7 +529,8 @@ __L2Exit:
 ; Name : gfx.mode.lowres Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_67_66_78_2e_6d_6f_64_65_2e_6c_6f_77_72_65_73_3a_3a_77:
+__mzdefine_67_66_78_2e_6d_6f_64_65_2e_6c_6f_77_72_65_73:
+    call COMHCreateCallToCode
 SetModeLowres:
   call  GFXInitialiseLowRes
   jp   GFXInitialise
@@ -659,7 +676,8 @@ __LPExit:
 ; Name : gfx.write.char Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_67_66_78_2e_77_72_69_74_65_2e_63_68_61_72_3a_3a_77:
+__mzdefine_67_66_78_2e_77_72_69_74_65_2e_63_68_61_72:
+    call COMHCreateCallToCode
 WriteCharacter:
   push  bc
   push  de
@@ -679,7 +697,8 @@ __WCContinue:
 ; Name : +! Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_2b_21_3a_3a_77:
+__mzdefine_2b_21:
+    call COMHCreateCallToCode
   ld   a,(hl)
   add  a,e
   ld   (hl),a
@@ -694,29 +713,32 @@ __mzdefine_2b_21_3a_3a_77:
 ; Name : @ Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_40_3a_3a_6d:
+__mzdefine_40:
+    call COMHCopyFollowingCode
+    db __mzdefine_40_end-__mzdefine_40-4
   ld   a,(hl)
   inc  hl
   ld   h,(hl)
   ld   l,a
-__mzdefine_40_3a_3a_6d_end:
-  ret
+__mzdefine_40_end:
 
 ; ---------------------------------------------------------
 ; Name : c@ Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_63_40_3a_3a_6d:
+__mzdefine_63_40:
+    call COMHCopyFollowingCode
+    db __mzdefine_63_40_end-__mzdefine_63_40-4
   ld   l,(hl)
   ld   h,0
-__mzdefine_63_40_3a_3a_6d_end:
-  ret
+__mzdefine_63_40_end:
 
 ; ---------------------------------------------------------
 ; Name : p@ Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_70_40_3a_3a_77:
+__mzdefine_70_40:
+    call COMHCreateCallToCode
   push  bc
   ld   c,l
   ld   b,h
@@ -729,7 +751,8 @@ __mzdefine_70_40_3a_3a_77:
 ; Name : p! Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_70_21_3a_3a_77:
+__mzdefine_70_21:
+    call COMHCreateCallToCode
   push  bc
   ld   c,l
   ld   b,h
@@ -741,37 +764,41 @@ __mzdefine_70_21_3a_3a_77:
 ; Name : ! Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_21_3a_3a_6d:
+__mzdefine_21:
+    call COMHCopyFollowingCode
+    db __mzdefine_21_end-__mzdefine_21-4
   ld   (hl),e
   inc  hl
   ld   (hl),d
   dec  hl
-__mzdefine_21_3a_3a_6d_end:
-  ret
+__mzdefine_21_end:
 
 ; ---------------------------------------------------------
 ; Name : c! Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_63_21_3a_3a_6d:
+__mzdefine_63_21:
+    call COMHCopyFollowingCode
+    db __mzdefine_63_21_end-__mzdefine_63_21-4
   ld   (hl),e
-__mzdefine_63_21_3a_3a_6d_end:
-  ret
+__mzdefine_63_21_end:
 
 ; ---------------------------------------------------------
 ; Name : break protected Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_62_72_65_61_6b_3a_3a_6d_70:
+__mzdefine_62_72_65_61_6b:
+    call COMHCopyFollowingCode
+    db __mzdefine_62_72_65_61_6b_end-__mzdefine_62_72_65_61_6b-4+128
   db   $DD,$01
-__mzdefine_62_72_65_61_6b_3a_3a_6d_70_end:
-  ret
+__mzdefine_62_72_65_61_6b_end:
 
 ; ---------------------------------------------------------
 ; Name : copy Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_63_6f_70_79_3a_3a_77:
+__mzdefine_63_6f_70_79:
+    call COMHCreateCallToCode
   ld   a,b         ; nothing to do.
   or   c
   ret  z
@@ -804,7 +831,8 @@ __copy2:
 ; Name : debug Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_64_65_62_75_67_3a_3a_77:
+__mzdefine_64_65_62_75_67:
+    call COMHCreateCallToCode
 DebugShow:
   push  bc
   push  de
@@ -870,7 +898,8 @@ __DHN2: add  a,48
 ; Name : .hex Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_2e_68_65_78_3a_3a_77:
+__mzdefine_2e_68_65_78:
+    call COMHCreateCallToCode
 PrintHexWord:
   ld   a,' '
   call  PrintCharacter
@@ -905,7 +934,8 @@ __PNIsDigit:
 ; Name : fill Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_66_69_6c_6c_3a_3a_77:
+__mzdefine_66_69_6c_6c:
+    call COMHCreateCallToCode
   ld   a,b         ; nothing to do.
   or   c
   ret  z
@@ -925,7 +955,8 @@ __fill1:ld   (hl),e
 ; Name : halt Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_68_61_6c_74_3a_3a_77:
+__mzdefine_68_61_6c_74:
+    call COMHCreateCallToCode
 HaltZ80:
   di
   halt
@@ -935,7 +966,8 @@ HaltZ80:
 ; Name : inkey Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_69_6e_6b_65_79_3a_3a_77:
+__mzdefine_69_6e_6b_65_79:
+    call COMHCreateCallToCode
   ex   de,hl
   call  IOScanKeyboard
   ld   l,a
@@ -946,16 +978,18 @@ __mzdefine_69_6e_6b_65_79_3a_3a_77:
 ; Name : ; protected Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_3b_3a_3a_6d_70:
+__mzdefine_3b:
+    call COMHCopyFollowingCode
+    db __mzdefine_3b_end-__mzdefine_3b-4+128
   ret
-__mzdefine_3b_3a_3a_6d_70_end:
-  ret
+__mzdefine_3b_end:
 
 ; ---------------------------------------------------------
 ; Name : sys.info Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_73_79_73_2e_69_6e_66_6f_3a_3a_77:
+__mzdefine_73_79_73_2e_69_6e_66_6f:
+    call COMHCreateCallToCode
   ex   de,hl
   ld   hl,SystemInformation
   ret
@@ -964,172 +998,190 @@ __mzdefine_73_79_73_2e_69_6e_66_6f_3a_3a_77:
 ; Name : abc>r protected Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_61_62_63_3e_72_3a_3a_6d_70:
+__mzdefine_61_62_63_3e_72:
+    call COMHCopyFollowingCode
+    db __mzdefine_61_62_63_3e_72_end-__mzdefine_61_62_63_3e_72-4+128
  push  bc
  push  de
  push  hl
-__mzdefine_61_62_63_3e_72_3a_3a_6d_70_end:
-  ret
+__mzdefine_61_62_63_3e_72_end:
 
 ; ---------------------------------------------------------
 ; Name : ab>r protected Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_61_62_3e_72_3a_3a_6d_70:
+__mzdefine_61_62_3e_72:
+    call COMHCopyFollowingCode
+    db __mzdefine_61_62_3e_72_end-__mzdefine_61_62_3e_72-4+128
  push  de
  push  hl
-__mzdefine_61_62_3e_72_3a_3a_6d_70_end:
-  ret
+__mzdefine_61_62_3e_72_end:
 
 ; ---------------------------------------------------------
 ; Name : a>b Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_61_3e_62_3a_3a_6d:
+__mzdefine_61_3e_62:
+    call COMHCopyFollowingCode
+    db __mzdefine_61_3e_62_end-__mzdefine_61_3e_62-4
  ld   d,h
  ld   e,l
-__mzdefine_61_3e_62_3a_3a_6d_end:
-  ret
+__mzdefine_61_3e_62_end:
 
 ; ---------------------------------------------------------
 ; Name : a>c Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_61_3e_63_3a_3a_6d:
+__mzdefine_61_3e_63:
+    call COMHCopyFollowingCode
+    db __mzdefine_61_3e_63_end-__mzdefine_61_3e_63-4
  ld   b,h
  ld   c,l
-__mzdefine_61_3e_63_3a_3a_6d_end:
-  ret
+__mzdefine_61_3e_63_end:
 
 ; ---------------------------------------------------------
 ; Name : a>r protected Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_61_3e_72_3a_3a_6d_70:
+__mzdefine_61_3e_72:
+    call COMHCopyFollowingCode
+    db __mzdefine_61_3e_72_end-__mzdefine_61_3e_72-4+128
  push  hl
-__mzdefine_61_3e_72_3a_3a_6d_70_end:
-  ret
+__mzdefine_61_3e_72_end:
 
 ; ---------------------------------------------------------
 ; Name : b>a Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_62_3e_61_3a_3a_6d:
+__mzdefine_62_3e_61:
+    call COMHCopyFollowingCode
+    db __mzdefine_62_3e_61_end-__mzdefine_62_3e_61-4
  ld   h,d
  ld   l,e
-__mzdefine_62_3e_61_3a_3a_6d_end:
-  ret
+__mzdefine_62_3e_61_end:
 
 ; ---------------------------------------------------------
 ; Name : b>c Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_62_3e_63_3a_3a_6d:
+__mzdefine_62_3e_63:
+    call COMHCopyFollowingCode
+    db __mzdefine_62_3e_63_end-__mzdefine_62_3e_63-4
  ld   b,d
  ld   c,e
-__mzdefine_62_3e_63_3a_3a_6d_end:
-  ret
+__mzdefine_62_3e_63_end:
 
 ; ---------------------------------------------------------
 ; Name : b>r protected Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_62_3e_72_3a_3a_6d_70:
+__mzdefine_62_3e_72:
+    call COMHCopyFollowingCode
+    db __mzdefine_62_3e_72_end-__mzdefine_62_3e_72-4+128
  push  de
-__mzdefine_62_3e_72_3a_3a_6d_70_end:
-  ret
+__mzdefine_62_3e_72_end:
 
 ; ---------------------------------------------------------
 ; Name : c>a Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_63_3e_61_3a_3a_6d:
+__mzdefine_63_3e_61:
+    call COMHCopyFollowingCode
+    db __mzdefine_63_3e_61_end-__mzdefine_63_3e_61-4
  ld   h,b
  ld   l,c
-__mzdefine_63_3e_61_3a_3a_6d_end:
-  ret
+__mzdefine_63_3e_61_end:
 
 ; ---------------------------------------------------------
 ; Name : c>b Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_63_3e_62_3a_3a_6d:
+__mzdefine_63_3e_62:
+    call COMHCopyFollowingCode
+    db __mzdefine_63_3e_62_end-__mzdefine_63_3e_62-4
  ld   d,b
  ld   e,c
-__mzdefine_63_3e_62_3a_3a_6d_end:
-  ret
+__mzdefine_63_3e_62_end:
 
 ; ---------------------------------------------------------
 ; Name : c>r protected Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_63_3e_72_3a_3a_6d_70:
+__mzdefine_63_3e_72:
+    call COMHCopyFollowingCode
+    db __mzdefine_63_3e_72_end-__mzdefine_63_3e_72-4+128
  push  bc
-__mzdefine_63_3e_72_3a_3a_6d_70_end:
-  ret
+__mzdefine_63_3e_72_end:
 
 ; ---------------------------------------------------------
 ; Name : r>a protected Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_72_3e_61_3a_3a_6d_70:
+__mzdefine_72_3e_61:
+    call COMHCopyFollowingCode
+    db __mzdefine_72_3e_61_end-__mzdefine_72_3e_61-4+128
  pop  hl
-__mzdefine_72_3e_61_3a_3a_6d_70_end:
-  ret
+__mzdefine_72_3e_61_end:
 
 ; ---------------------------------------------------------
 ; Name : r>ab protected Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_72_3e_61_62_3a_3a_6d_70:
+__mzdefine_72_3e_61_62:
+    call COMHCopyFollowingCode
+    db __mzdefine_72_3e_61_62_end-__mzdefine_72_3e_61_62-4+128
  pop  hl
  pop  de
-__mzdefine_72_3e_61_62_3a_3a_6d_70_end:
-  ret
+__mzdefine_72_3e_61_62_end:
 
 ; ---------------------------------------------------------
 ; Name : r>abc protected Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_72_3e_61_62_63_3a_3a_6d_70:
+__mzdefine_72_3e_61_62_63:
+    call COMHCopyFollowingCode
+    db __mzdefine_72_3e_61_62_63_end-__mzdefine_72_3e_61_62_63-4+128
  pop  hl
  pop  de
  pop  bc
-__mzdefine_72_3e_61_62_63_3a_3a_6d_70_end:
-  ret
+__mzdefine_72_3e_61_62_63_end:
 
 ; ---------------------------------------------------------
 ; Name : r>b protected Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_72_3e_62_3a_3a_6d_70:
+__mzdefine_72_3e_62:
+    call COMHCopyFollowingCode
+    db __mzdefine_72_3e_62_end-__mzdefine_72_3e_62-4+128
  pop  de
-__mzdefine_72_3e_62_3a_3a_6d_70_end:
-  ret
+__mzdefine_72_3e_62_end:
 
 ; ---------------------------------------------------------
 ; Name : r>c protected Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_72_3e_63_3a_3a_6d_70:
+__mzdefine_72_3e_63:
+    call COMHCopyFollowingCode
+    db __mzdefine_72_3e_63_end-__mzdefine_72_3e_63-4+128
  pop  bc
-__mzdefine_72_3e_63_3a_3a_6d_70_end:
-  ret
+__mzdefine_72_3e_63_end:
 
 ; ---------------------------------------------------------
 ; Name : swap Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_73_77_61_70_3a_3a_6d:
+__mzdefine_73_77_61_70:
+    call COMHCopyFollowingCode
+    db __mzdefine_73_77_61_70_end-__mzdefine_73_77_61_70-4
  ex   de,hl
-__mzdefine_73_77_61_70_3a_3a_6d_end:
-  ret
+__mzdefine_73_77_61_70_end:
 
 ; ---------------------------------------------------------
 ; Name : 0= Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_30_3d_3a_3a_77:
+__mzdefine_30_3d:
+    call COMHCreateCallToCode
   ld  a,h
   or  l
   ld  hl,$0000
@@ -1141,7 +1193,8 @@ __mzdefine_30_3d_3a_3a_77:
 ; Name : 0< Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_30_3c_3a_3a_77:
+__mzdefine_30_3c:
+    call COMHCreateCallToCode
   bit 7,h
   ld  hl,$0000
   ret z
@@ -1152,7 +1205,8 @@ __mzdefine_30_3c_3a_3a_77:
 ; Name : 0- Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_30_2d_3a_3a_77:
+__mzdefine_30_2d:
+    call COMHCreateCallToCode
   ld  a,h
   cpl
   ld  h,a
@@ -1166,7 +1220,8 @@ __mzdefine_30_2d_3a_3a_77:
 ; Name : 16/ Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_31_36_2f_3a_3a_77:
+__mzdefine_31_36_2f:
+    call COMHCreateCallToCode
   sra  h
   rr   l
   sra  h
@@ -1181,37 +1236,41 @@ __mzdefine_31_36_2f_3a_3a_77:
 ; Name : 16* Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_31_36_2a_3a_3a_6d:
+__mzdefine_31_36_2a:
+    call COMHCopyFollowingCode
+    db __mzdefine_31_36_2a_end-__mzdefine_31_36_2a-4
   add  hl,hl
   add  hl,hl
   add  hl,hl
   add  hl,hl
-__mzdefine_31_36_2a_3a_3a_6d_end:
-  ret
+__mzdefine_31_36_2a_end:
 
 ; ---------------------------------------------------------
 ; Name : 1- Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_31_2d_3a_3a_6d:
+__mzdefine_31_2d:
+    call COMHCopyFollowingCode
+    db __mzdefine_31_2d_end-__mzdefine_31_2d-4
   dec hl
-__mzdefine_31_2d_3a_3a_6d_end:
-  ret
+__mzdefine_31_2d_end:
 
 ; ---------------------------------------------------------
 ; Name : 1+ Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_31_2b_3a_3a_6d:
+__mzdefine_31_2b:
+    call COMHCopyFollowingCode
+    db __mzdefine_31_2b_end-__mzdefine_31_2b-4
   inc hl
-__mzdefine_31_2b_3a_3a_6d_end:
-  ret
+__mzdefine_31_2b_end:
 
 ; ---------------------------------------------------------
 ; Name : 256/ Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_32_35_36_2f_3a_3a_77:
+__mzdefine_32_35_36_2f:
+    call COMHCreateCallToCode
   ld   l,h
   ld   h,0
   bit  7,l
@@ -1223,56 +1282,62 @@ __mzdefine_32_35_36_2f_3a_3a_77:
 ; Name : 256* Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_32_35_36_2a_3a_3a_6d:
+__mzdefine_32_35_36_2a:
+    call COMHCopyFollowingCode
+    db __mzdefine_32_35_36_2a_end-__mzdefine_32_35_36_2a-4
   ld   h,l
   ld   l,0
-__mzdefine_32_35_36_2a_3a_3a_6d_end:
-  ret
+__mzdefine_32_35_36_2a_end:
 
 ; ---------------------------------------------------------
 ; Name : 2/ Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_32_2f_3a_3a_6d:
+__mzdefine_32_2f:
+    call COMHCopyFollowingCode
+    db __mzdefine_32_2f_end-__mzdefine_32_2f-4
   sra  h
   rr   l
-__mzdefine_32_2f_3a_3a_6d_end:
-  ret
+__mzdefine_32_2f_end:
 
 ; ---------------------------------------------------------
 ; Name : 2- Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_32_2d_3a_3a_6d:
+__mzdefine_32_2d:
+    call COMHCopyFollowingCode
+    db __mzdefine_32_2d_end-__mzdefine_32_2d-4
   dec hl
   dec hl
-__mzdefine_32_2d_3a_3a_6d_end:
-  ret
+__mzdefine_32_2d_end:
 
 ; ---------------------------------------------------------
 ; Name : 2+ Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_32_2b_3a_3a_6d:
+__mzdefine_32_2b:
+    call COMHCopyFollowingCode
+    db __mzdefine_32_2b_end-__mzdefine_32_2b-4
   inc hl
   inc hl
-__mzdefine_32_2b_3a_3a_6d_end:
-  ret
+__mzdefine_32_2b_end:
 
 ; ---------------------------------------------------------
 ; Name : 2* Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_32_2a_3a_3a_6d:
+__mzdefine_32_2a:
+    call COMHCopyFollowingCode
+    db __mzdefine_32_2a_end-__mzdefine_32_2a-4
   add  hl,hl
-__mzdefine_32_2a_3a_3a_6d_end:
-  ret
+__mzdefine_32_2a_end:
 
 ; ---------------------------------------------------------
 ; Name : 4/ Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_34_2f_3a_3a_77:
+__mzdefine_34_2f:
+    call COMHCreateCallToCode
   sra  h
   rr   l
   sra  h
@@ -1283,28 +1348,31 @@ __mzdefine_34_2f_3a_3a_77:
 ; Name : 4* Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_34_2a_3a_3a_6d:
+__mzdefine_34_2a:
+    call COMHCopyFollowingCode
+    db __mzdefine_34_2a_end-__mzdefine_34_2a-4
   add  hl,hl
   add  hl,hl
-__mzdefine_34_2a_3a_3a_6d_end:
-  ret
+__mzdefine_34_2a_end:
 
 ; ---------------------------------------------------------
 ; Name : 8* Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_38_2a_3a_3a_6d:
+__mzdefine_38_2a:
+    call COMHCopyFollowingCode
+    db __mzdefine_38_2a_end-__mzdefine_38_2a-4
   add  hl,hl
   add  hl,hl
   add  hl,hl
-__mzdefine_38_2a_3a_3a_6d_end:
-  ret
+__mzdefine_38_2a_end:
 
 ; ---------------------------------------------------------
 ; Name : abs Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_61_62_73_3a_3a_77:
+__mzdefine_61_62_73:
+    call COMHCreateCallToCode
   bit 7,h
   ret z
   ld  a,h
@@ -1320,18 +1388,20 @@ __mzdefine_61_62_73_3a_3a_77:
 ; Name : bswap Type : macro
 ; ---------------------------------------------------------
 
-__mzdefine_62_73_77_61_70_3a_3a_6d:
+__mzdefine_62_73_77_61_70:
+    call COMHCopyFollowingCode
+    db __mzdefine_62_73_77_61_70_end-__mzdefine_62_73_77_61_70-4
   ld   a,l
   ld   l,h
   ld   h,a
-__mzdefine_62_73_77_61_70_3a_3a_6d_end:
-  ret
+__mzdefine_62_73_77_61_70_end:
 
 ; ---------------------------------------------------------
 ; Name : max Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_6d_61_78_3a_3a_77:
+__mzdefine_6d_61_78:
+    call COMHCreateCallToCode
  ld   a,h
     xor  d
     jp   m,__Max2
@@ -1351,7 +1421,8 @@ __Max2:
 ; Name : min Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_6d_69_6e_3a_3a_77:
+__mzdefine_6d_69_6e:
+    call COMHCreateCallToCode
  ld   a,h
     xor  d
     jp   m,__Min2
@@ -1371,7 +1442,8 @@ __Min2:
 ; Name : not Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_6e_6f_74_3a_3a_77:
+__mzdefine_6e_6f_74:
+    call COMHCreateCallToCode
   ld  a,h
   cpl
   ld  h,a
@@ -1384,6 +1456,8 @@ __mzdefine_6e_6f_74_3a_3a_77:
 ; Name :  Type : codeonly
 ; ---------------------------------------------------------
 
+; if this is ever converted to a call routine the original AF needs stacking as well, as it's
+; lost in the Call to EHL
 ; ***********************************************************************************************
 ; ***********************************************************************************************
 ;
@@ -1399,16 +1473,14 @@ COMCompileWord:
   push  de
   push  hl
   push  hl        ; save word address
+  db  $DD,$01
   call  DICTFindWord      ; try to find it
   pop  bc         ; restore word address to BC
   jr   nc,__COMCWWordFound
   ld   h,b        ; put back in HL
   ld   l,c
-  ld   a,(hl)        ; check for string constant
-  cp   '"'
-  jr   z,__COMCWStringConstant
   call  CONSTConvert      ; convert it to a constant
-  jr   nc,__COMCWVariable     ; and compile that value.
+  jr   nc,__COMCWConstant     ; write code to load that.
   scf
 __COMCWExit:
   pop  hl
@@ -1419,88 +1491,23 @@ __COMCWExit:
 ;  Word found in dictionary
 ;
 __COMCWWordFound:
-  ld   a,d
-  or   a
-  jr   z,__COMCWStandardWord
-  cp   15
-  jr   z,__COMCWImmediate
-  cp   14
-  jr   z,__COMCWVariable
-;
-;  Found a copy compiling macro
-;
-  ld   b,d         ; count to copy
-__COMCWCopyLoop:
-  ld   a,(hl)
-  call  FARCompileByte
-  inc  hl
-  djnz  __COMCWCopyLoop
-  xor  a          ; exit happy
-  jr   __COMCWExit
-;
-;  Found a standard word
-;
-__COMCWStandardWord:
-  call  COMUTLCodeCallEHL      ; write the code to call E:HL
-  xor  a          ; exit happy
-  jr   __COMCWExit
-;
-;  Found a variable - also used to compile a constant.
-;
-__COMCWVariable:
-  call  COMUTLConstantCode      ; compile as constant
-  xor  a          ; exit happy
-  jr   __COMCWExit
-;
-;  Found immediate word.
-;
-__COMCWImmediate:
   call  COMUTLExecuteEHL      ; execute the word.
   xor  a          ; exit happy
   jr   __COMCWExit
 ;
-;  String Constant
+;  Decimal constant found.
 ;
-__COMCWStringConstant:
-  ld   b,$FF        ; calculate length
-  push  hl
-__COMCWGetLength:
-  inc  b
-  inc  hl
-  ld   a,(hl)
-  cp   ' '+1
-  jr   nc,__COMCWGetLength
-  ld   a,$18         ; compile JR <length+1>
-  call  FARCompileByte
-  ld   a,b
-  inc  a
-  call  FARCompileByte
-  ld   de,(SINextFreeCode)     ; save address
-  pop  hl          ; compile string
-__COMCWDoString:
-  ld   a,b
-  or   a
-  jr   z,__COMCWStringDone
-  inc  hl
-  dec  b
-  ld   a,(hl)
-  cp   '_'
-  jr   nz,__COMCWNotUnderscore
-  ld   a,' '
-__COMCWNotUnderscore:
-  call  FARCompileByte
-  jr   __COMCWDoString
-__COMCWStringDone:
-  xor  a
-  call  FARCompileByte
-  ex   de,hl
-  jr   __COMCWVariable
+__COMCWConstant:
+  call  COMUTLConstantCode      ; compile as constant
+  xor  a          ; exit happy
+  jr   __COMCWExit
 
 ; ---------------------------------------------------------
 ; Name : string.to.int Type : word
 ; ---------------------------------------------------------
 
-__mzdefine_73_74_72_69_6e_67_2e_74_6f_2e_69_6e_74_3a_3a_77:
+__mzdefine_73_74_72_69_6e_67_2e_74_6f_2e_69_6e_74:
+    call COMHCreateCallToCode
 ; ***********************************************************************************************
 ; ***********************************************************************************************
 ;
@@ -1592,15 +1599,14 @@ __DICTFindMainLoop:
   jr   z,__DICTFindFail
   push  ix         ; save pointers on stack.
   push  hl
+  ld   b,(ix+4)       ; characters to compare
 __DICTCheckName:
   ld   a,(ix+5)       ; compare dictionary vs character.
-  xor  (hl)        ; get the matching character.
-  and  $7F        ; ignore bit 7, for now.
+  cp  (hl)         ; compare vs the matching character.
   jr   nz,__DICTFindNoMatch    ; no, not the same word.
   inc  hl         ; HL point to next character
   inc  ix
-  bit  7,(ix+4)       ; have we matched everything, e.g. last match bit 7 was high.
-  jr   z,__DICTCheckName
+  djnz  __DICTCheckName
   ld   a,(hl)       ; if so, see if the next one is EOW
   cp   ' '+1
   jr   nc,__DICTFindNoMatch    ; if not , bad match.
@@ -1628,149 +1634,6 @@ __DICTFindExit:
   pop  ix         ; pop registers and return.
   pop  bc
   ret
-
-; ---------------------------------------------------------
-; Name : get.word.add.dictionary Type : word
-; ---------------------------------------------------------
-
-__mzdefine_67_65_74_2e_77_6f_72_64_2e_61_64_64_2e_64_69_63_74_69_6f_6e_61_72_79_3a_3a_77:
-  push de
-  push  hl
-  call  PARSEGetNextWord      ; get the next word.
-  jr   c,__GWADError       ; nothing to get.
-  call  DICTAddWord       ; add it to the dictionary.
-  resetMemoryPage        ; set the memory page back to A'
-  pop  hl
-  pop  de
-  ret
-__GWADError:           ; nothing to get.
-  ld   hl,__GWADMessage
-  jp   ErrorHandler
-__GWADMessage:
-  db   "No word available for definition",0
-; ***********************************************************************************************
-;
-;  Add Dictionary Word. Name is string at HL ends in <= ' ', uses the current page/pointer
-;  values.
-;
-; ***********************************************************************************************
-DICTAddWord:
-  push  af          ; registers to stack.
-  push  bc
-  push  de
-  push hl
-  push  ix
-  push  hl          ; put length of string in B
-  ld   b,-1
-__DICTAddGetLength:
-  ld   a,(hl)
-  inc  hl
-  inc  b
-  cp   ' '+1
-  jr   nc,__DICTAddGetLength
-  pop  hl
-  ld   a,DictionaryPage     ; switch to dictionary page
-  setMemoryPageA
-  ld   ix,$C000       ; IX = Start of dictionary
-__DICTFindEndDictionary:
-  ld   a,(ix+0)        ; follow down chain to the end
-  or   a
-  jr   z,__DICTCreateEntry
-  ld   e,a
-  ld   d,0
-  add  ix,de
-  jr   __DICTFindEndDictionary
-__DICTCreateEntry:
-  ld   (DICTLastDefinedWord),ix    ; save last defined address.
-  ld   a,b
-  add  a,5
-  ld   (ix+0),a        ; offset is length + 5
-  ld   a,(SINextFreeCodePage)    ; code page
-  ld   (ix+1),a
-  ld   de,(SINextFreeCode)     ; code address
-  ld   (ix+2),e
-  ld   (ix+3),d
-  ld   (ix+4),0        ; type information.
-  ex   de,hl         ; put name in DE
-__DICTAddCopy:
-  ld   a,(de)         ; copy byte over as 7 bit ASCII.
-  ld   (ix+5),a
-  inc  de
-  inc  ix
-  djnz __DICTAddCopy       ; until string is copied over.
-  set  7,(ix+4)        ; set bit 7 of the last character
-  ld   (ix+5),0        ; write end of dictionary zero.
-  pop  ix          ; restore and exit
-  pop  hl
-  pop  de
-  pop  bc
-  pop  af
-  ret
-
-; ---------------------------------------------------------
-; Name :  Type : codeonly
-; ---------------------------------------------------------
-
-; ***********************************************************************************************
-; ***********************************************************************************************
-;
-;  Name :   execute.word
-;  Purpose :  Word Executor
-;  Author : Paul Robson (paul@robsons.org.uk)
-;  Date :   12th November 2018
-;
-; ***********************************************************************************************
-; ***********************************************************************************************
-EXEExecuteWord:
-  push  bc
-  push  de
-  push  hl
-  push  hl        ; save word address
-  call  DICTFindWord      ; try to find it
-  pop  bc         ; restore word address to BC
-  jr   nc,__EXEEWWordFound
-  ld   h,b        ; put back in HL
-  ld   l,c
-  call  CONSTConvert      ; convert it to a constant
-  jr   nc,__EXEEWVariable     ; and insert that value.
-  scf
-__EXEEWExit:
-  pop  hl
-  pop  de
-  pop  bc
-  ret
-;
-;  Word found in dictionary
-;
-__EXEEWWordFound:
-  bit  6,d        ; protected bit set ?
-  jr   nz,__EXEEWProtected
-  ld   a,d
-  cp   14
-  jr   z,__EXEEWVariable
-;
-;  Found a standard word, copy compiler or immediate, all of which we execute.
-;
-  call  COMUTLExecuteEHL      ; execute the word.
-  xor  a          ; exit happy
-  jr   __EXEEWExit
-;
-;  Found a variable - also used to load a constant
-;
-__EXEEWVariable:
-  ld   de,(ARegister)      ; move A->B
-  ld   (BRegister),de
-  ld   (ARegister),hl       ; store value in A
-  xor  a          ; exit happy
-  jr   __EXEEWExit
-;
-;  Tried to execute a protected word.
-;
-__EXEEWProtected:
-  ld   hl,__EXEEWProtectedMsg
-  jp   ErrorHandler
-__EXEEWProtectedMsg:
-  db   "Word is protected",0
 
 ; ---------------------------------------------------------
 ; Name :  Type : codeonly
@@ -1829,10 +1692,9 @@ FARCompileWord:
   ret
 
 ; ---------------------------------------------------------
-; Name : bootstrap.load Type : word
+; Name :  Type : codeonly
 ; ---------------------------------------------------------
 
-__mzdefine_62_6f_6f_74_73_74_72_61_70_2e_6c_6f_61_64_3a_3a_77:
 ; ********************************************************************************************************
 ; ********************************************************************************************************
 ;
@@ -1900,14 +1762,7 @@ LOADScanBuffer:
   call  PARSESetWordPointer     ; set the word pointer.
 __LOADScanLoop:
   call  PARSEGetNextWord     ; try to get next word text@HL type@B
-  jr   c,__LOADScanExit      ; nothing to get.
-  ld   a,(IsCompilerMode)
-  or   a
-  jr   nz,__LOADIsCompile
-  call  EXEExecuteWord       ; execute the word at HL
-  jr   c,__LOADErrorHandler     ; error ?
-  jr   __LOADScanLoop
-__LOADIsCompile:
+  jr   c,__LOADScanExit
   call  COMCompileWord       ; compile the word at HL
   jr   c,__LOADErrorHandler     ; error ?
   jr   __LOADScanLoop
@@ -1948,32 +1803,6 @@ __LOADErrorMessage:
   db   " : Unknown word",0
 __LOADBoot:
   db   "MZ Bootstrap (10-11-18) ",0
-
-; ---------------------------------------------------------
-; Name : compile Type : word
-; ---------------------------------------------------------
-
-__mzdefine_63_6f_6d_70_69_6c_65_3a_3a_77:
-SetModeCompile:
-  ld   a,$FF
-  ld   (IsCompilerMode),a
-  ret
-;
-;  This word is made immediate by makedictionary.py
-;
-
-; ---------------------------------------------------------
-; Name : execute Type : word
-; ---------------------------------------------------------
-
-__mzdefine_65_78_65_63_75_74_65_3a_3a_77:
-SetModeExecute:
-  ld   a,0
-  ld   (IsCompilerMode),a
-  ret
-;
-;  This word is made immediate by makedictionary.py
-;
 
 ; ---------------------------------------------------------
 ; Name :  Type : codeonly
@@ -2083,20 +1912,35 @@ COMUTLExecuteExit:
   ld   (BRegister),de
   ld   (ARegister),hl
   ret
-
-; ---------------------------------------------------------
-; Name : xor.last.type.byte Type : word
-; ---------------------------------------------------------
-
-__mzdefine_78_6f_72_2e_6c_61_73_74_2e_74_79_70_65_2e_62_79_74_65_3a_3a_77:
-  push  ix
-  ld   a,DictionaryPage     ; switch to dictionary page
-  setMemoryPageA
-  ld   ix,(DICTLastDefinedWord)   ; get address of last defined
-  ld   a,l         ; XOR offset 4 (type byte) with L
-  xor  (ix+4)
-  ld   (ix+4),a
-  resetMemoryPage        ; set the memory page back to A'
-  pop  ix
+; ***********************************************************************************************
+;
+;  Copy a macro. The return address points to ld a,<count> followed by the macro contents
+;  Note only the lower 4 bits of the count are valid.
+;
+; ***********************************************************************************************
+COMHCopyFollowingCode:
+  pop  hl           ; get return address
+  ld   a,(hl)          ; get count in bits 0..3
+  and  15
+  ld   b,a
+__COMHCFCLoop:            ; copy bytes
+  inc  hl
+  ld   a,(hl)
+  call  FARCompileByte
+  djnz  __COMHCFCLoop
+  resetMemoryPage         ; make sure we're going back to the caller.
+  ret
+; ***********************************************************************************************
+;
+;   Create a call to the code following this caller. It is running in page A'
+;
+; ***********************************************************************************************
+COMHCreateCallToCode:
+  ex   af,af'          ; set E to the caller's page, as this is where
+  ld   e,a          ; the code is
+  ex   af,af'
+  pop  hl           ; get code address
+  call  COMUTLCodeCallEHL       ; compile a call to E:HL from here.
+  resetMemoryPage         ; make sure we're going back to the caller.
   ret
 

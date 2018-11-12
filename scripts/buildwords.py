@@ -55,17 +55,16 @@ for f in fileList:
 	h.write("; ---------------------------------------------------------\n")
 	h.write("; Name : {0} Type : {1}\n".format(m.group(2).lower().strip(),wType))
 	h.write("; ---------------------------------------------------------\n\n")
-
 	#
-	#		add p if protected, and convert to a portable assembler label
+	#		convert to a portable assembler label
 	#
-	wName = wName + "::"+wType[0]+("p" if isProtected else "")
 	scrambleName = "__mzdefine_"+"_".join("{0:02x}".format(ord(c)) for c in wName)
 	#
 	#		output code if normal word
 	#
 	if wType == "word":
 		h.write("{0}:\n".format(scrambleName))
+		h.write("    call COMHCreateCallToCode\n")
 		for s in src[1:]:
 			h.write(s+"\n")
 	#
@@ -73,19 +72,18 @@ for f in fileList:
 	#
 	if wType == "macro":			
 		h.write("{0}:\n".format(scrambleName))
+		h.write("    call COMHCopyFollowingCode\n")
+		h.write("    db {0}_end-{0}-4{1}\n".format(scrambleName,"+128" if isProtected else ""))
 		for s in src[1:]:
 			h.write(s+"\n")
-		if wName != ";::mp":
-			assert src[-1].strip() != "ret","Macro "+wName+" ends in ret"
 		h.write("{0}_end:\n".format(scrambleName))
-		h.write("  ret\n")
 	#
 	#		output code if code only
 	#
 	if wType == "codeonly":
 		for s in src[1:]:
 			h.write(s+"\n")
-			
+		
 	#print(wName,scrambleName,wType)
 	h.write("\n")
 h.close()

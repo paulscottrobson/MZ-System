@@ -102,11 +102,9 @@ class MZImage(object):
 		self.write(dp,p+1,page)
 		self.write(dp,p+2,address & 0xFF)
 		self.write(dp,p+3,address >> 8)
-		self.write(dp,p+4,0)
-		aname = [ord(x) for x in name]
-		aname[-1] = aname[-1] + 0x80
-		for i in range(0,len(aname)):
-			self.write(dp,p+5+i,aname[i])
+		self.write(dp,p+4,len(name))
+		for i in range(0,len(name)):
+			self.write(dp,p+5+i,ord(name[i]))
 		p = p + len(name) + 5
 		self.write(dp,p,0)
 	#

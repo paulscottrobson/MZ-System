@@ -23,15 +23,14 @@ __DICTFindMainLoop:
 		push 	ix 								; save pointers on stack.
 		push 	hl 
 
+		ld 		b,(ix+4) 						; characters to compare
 __DICTCheckName:
 		ld 		a,(ix+5) 						; compare dictionary vs character.
-		xor 	(hl) 							; get the matching character.
-		and 	$7F 							; ignore bit 7, for now.		
+		cp 	(hl) 								; compare vs the matching character.
 		jr 		nz,__DICTFindNoMatch 			; no, not the same word.
 		inc 	hl 								; HL point to next character
 		inc 	ix
-		bit 	7,(ix+4) 						; have we matched everything, e.g. last match bit 7 was high.
-		jr 		z,__DICTCheckName
+		djnz 	__DICTCheckName
 
 		ld 		a,(hl)							; if so, see if the next one is EOW
 		cp 		' '+1
@@ -63,4 +62,3 @@ __DICTFindExit:
 		pop 	ix 								; pop registers and return.
 		pop 	bc
 		ret
-

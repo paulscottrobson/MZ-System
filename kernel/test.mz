@@ -1,1 +1,1 @@
-execute 14 4 + debug ; halt
+debug @ 42 halt
