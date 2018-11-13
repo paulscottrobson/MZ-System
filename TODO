@@ -1,2 +1,6 @@
-
-* incomplete structures crash, need to error.
+* add string back in
+* add error handlers to begin etc.
+* move core.mz to another directory
+* start to port libraries
+* port sprite work.
+* TODO highest page in save stuff.
