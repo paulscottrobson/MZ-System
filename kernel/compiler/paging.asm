@@ -16,9 +16,9 @@
 ; ********************************************************************************************************
 
 PAGEInitialise:
-		nextreg $56,a 								; switch to page A
+		db 		$ED,$92,$56							; switch to page A
 		inc 	a
-		nextreg	$57,a
+		db 		$ED,$92,$57
 		dec 	a
 		ex 		af,af' 								; put page in A'
 		ld 		hl,PAGEStackBase 					; reset the page stack
@@ -43,9 +43,9 @@ PAGESwitch:
 		ld 		(PAGEStackPointer),hl
 
 		pop 	af 									; restore new A
-		nextreg $56,a 								; switch to page A
+		db 		$ED,$92,$56							; switch to page A
 		inc 	a
-		nextreg	$57,a
+		db 		$ED,$92,$57
 		dec 	a
 		ex 		af,af' 								; put page in A'
 
@@ -66,9 +66,9 @@ PAGERestore:
 		dec 	hl
 		ld 		a,(hl)
 		ld 		(PAGEStackPointer),hl
-		nextreg $56,a 								; switch to page A
+		db 		$ED,$92,$56							; switch to page A
 		inc 	a
-		nextreg	$57,a
+		db 		$ED,$92,$57
 		dec 	a
 		ex 		af,af' 								; put page in A'
 		pop 	hl
