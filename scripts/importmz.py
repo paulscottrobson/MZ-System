@@ -43,16 +43,18 @@ for f in sys.argv[1:]:
 		#
 		#		Make space if needed
 		#
-		required = len(word)+2
+		required = len(word)+3
 		if word in defWords:
 			required += 32
 		if int(address/paging) != int((address+required)/paging):
+			#print("-------------")
 			while address % paging != 0:
 				image.write(page,address,0)
 				address += 1
 		#
 		#		Output the word
 		#
+		#print("{0:04x} {1} {2}".format(address,word,required))
 		for c in " "+word:
 			image.write(page,address,ord(c))
 			address += 1

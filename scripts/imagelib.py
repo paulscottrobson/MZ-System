@@ -28,7 +28,7 @@ class MZImage(object):
 	#		(has to be maintained manually, required for bootstrap injection)
 	#
 	def getDefiningWords(self):
-		return [ ":","variable","&&","!!","@@" ]
+		return [ "::",":","variable","&&","!!","@@" ]
 	#
 	#		Return dictionary page
 	#
@@ -48,7 +48,7 @@ class MZImage(object):
 	#		Bootstrap paging - the size of chunks permitted.
 	#
 	def bootstrapPaging(self):
-		return 0x4000		
+		return 0x400		
 	#
 	#		Set boot address
 	#

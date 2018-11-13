@@ -1,3 +1,2 @@
-* add those words  : private protected immediate variable
-* add notes to documentation re non language stuff.
-* add if/then begin/until begin/again for/next
+
+* incomplete structures crash, need to error.
