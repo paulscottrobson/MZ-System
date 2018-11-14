@@ -267,7 +267,7 @@ GFXInitialise48k:
   ld   bc,$123B        ; Layer 2 access port
   ld   a,0         ; disable Layer 2
   out  (c),a
-  db   $ED,$91,$15,$3      ; Disable LowRes but enable Sprites
+  nextreg $15,$3        ; Disable LowRes but enable Sprites
   ld   hl,$4000        ; clear pixel memory
 __cs1: ld   (hl),0
   inc  hl
@@ -393,7 +393,7 @@ GFXInitialiseLayer2:
   push  af
   push  bc
   push  de
-  db   $ED,$91,$15,$3      ; Disable LowRes but enable Sprites
+  nextreg $15,$3        ; Disable LowRes but enable Sprites
   ld   e,2         ; 3 banks to erase
 L2PClear:
   ld   a,e         ; put bank number in bits 6/7
@@ -553,7 +553,7 @@ GFXInitialiseLowRes:
   push  af
   push  bc
   push  de
-  db   $ED,$91,$15,$83      ; Enable LowRes and enable Sprites
+  nextreg $15,$83        ; Enable LowRes and enable Sprites
   xor  a          ; layer 2 off.
   ld   bc,$123B        ; out to layer 2 port
   out  (c),a
@@ -1523,5 +1523,5 @@ __defineImmediateFails:
 ; ---------------------------------------------------------
 
 __mzdefine_70_61_72_73_65_2e_67_65_74_2e_64_65_66_69_6e_65_2e_77_6f_72_64_2e_69_6d_6d_65_64_69_61_74_65:
-  jp  __ParseGetDefineWord
+  jp  __ParseGetDefineWord:
 

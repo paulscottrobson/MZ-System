@@ -28,7 +28,7 @@ GFXInitialise48k:
 		ld 		bc,$123B 							; Layer 2 access port
 		ld 		a,0 								; disable Layer 2
 		out 	(c),a
-		db 		$ED,$91,$15,$3						; Disable LowRes but enable Sprites
+		nextreg $15,$3								; Disable LowRes but enable Sprites
 
 		ld 		hl,$4000 							; clear pixel memory
 __cs1:	ld 		(hl),0

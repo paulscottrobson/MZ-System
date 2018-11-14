@@ -25,7 +25,7 @@ GFXInitialiseLayer2:
 		push 	af
 		push 	bc
 		push 	de
-		db 		$ED,$91,$15,$3						; Disable LowRes but enable Sprites
+		nextreg $15,$3								; Disable LowRes but enable Sprites
 
 		ld 		e,2 								; 3 banks to erase
 L2PClear:

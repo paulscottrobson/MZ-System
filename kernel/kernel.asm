@@ -18,6 +18,7 @@ DictionaryPage = $20 								; dictionary page
 BootstrapPage = $22 								; page containing bootstrapped text.
 FirstCodePage = $24									; first code page
 
+			opt 	zxnextreg
 			org 	$8000
 			jr 		Boot
 			org 	$8004
@@ -25,7 +26,7 @@ FirstCodePage = $24									; first code page
 
 Boot:		ld 		sp,(SIStack)					; reset Z80 Stack
 			di										; enable interrupts
-			db 		$ED,$91,7,2						; set turbo port (7) to 2 (14Mhz)
+			nextreg	7,2								; set turbo port (7) to 2 (14Mhz)
 			call 	SetMode48k 						; initialise and clear screen.
 			ld 		a,(SIBootCodePage) 				; get the page to start
 			call 	PAGEInitialise 

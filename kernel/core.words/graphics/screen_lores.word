@@ -25,7 +25,7 @@ GFXInitialiseLowRes:
 		push 	bc
 		push 	de
 
-		db 		$ED,$91,$15,$83						; Enable LowRes and enable Sprites
+		nextreg $15,$83								; Enable LowRes and enable Sprites
 		xor 	a 									; layer 2 off.
 		ld 		bc,$123B 							; out to layer 2 port
 		out 	(c),a
