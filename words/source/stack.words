@@ -1,0 +1,56 @@
+; ***************************************************************************************
+; ***************************************************************************************
+;
+;		Name : 		stack.words
+;		Author :	Paul Robson (paul@robsons.org.uk)
+;		Date : 		15th November 2018
+;		Purpose :	Stack operators
+;
+; ***************************************************************************************
+; ***************************************************************************************
+
+; @macro a>r protected
+	push 	hl
+; @end
+
+; @macro b>r protected
+	push 	de
+; @end
+
+; @macro c>r protected
+	push 	bc
+; @end
+
+; @macro ab>r protected
+	push 	de
+	push 	hl
+; @end
+
+; @macro abc>r protected
+	push 	bc
+	push 	de
+	push 	hl
+; @end
+
+; @macro r>a protected
+	pop 	hl
+; @end
+
+; @macro r>b protected
+	pop 	de
+; @end
+
+; @macro r>c protected
+	pop 	bc
+; @end
+
+; @macro r>ab protected
+	pop 	hl
+	pop 	de
+; @end
+
+; @macro r>abc protected
+	pop 	hl
+	pop 	de
+	pop 	bc
+; @end

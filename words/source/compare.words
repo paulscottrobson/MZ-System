@@ -1,0 +1,119 @@
+; ***************************************************************************************
+; ***************************************************************************************
+;
+;		Name : 		compare.words
+;		Author :	Paul Robson (paul@robsons.org.uk)
+;		Date : 		15th November 2018
+;		Purpose :	Comparison words, min and max.
+;
+; ***************************************************************************************
+; ***************************************************************************************
+
+; @word = 
+	ld 		a,h
+	cp 		d
+	jr 		nz,__COMFalse
+	ld 		a,l
+	cp 		e
+	jr 		nz,__COMFalse
+__COMTrue:	
+	ld 		hl,$FFFF
+	ret
+__COMFalse:
+	ld 		hl,$0000
+	ret
+; @end
+
+; @word <>
+	ld 		a,h
+	cp 		d
+	jr 		nz,__COM2True
+	ld 		a,l
+	cp 		e
+	jr 		z,__COM2False
+__COM2True:
+	ld 		hl,$FFFF
+	ret
+__COM2False:
+	ld 		hl,$0000
+	ret
+; @end
+
+
+; @word >
+	ld 		a,h
+    xor 	d
+    bit 	7,a
+    jr 		nz,__Greater
+    sbc 	hl,de
+    jr 		c,__COM3True
+    jr 		__COM3False
+__Greater:
+	bit 	7,d
+    jr 		nz,__COM3False
+__COM3True:
+	ld 		hl,$FFFF
+	ret
+__COM3False:
+	ld 		hl,$0000
+	ret
+; @end
+
+; @word <=
+	ld 		a,h
+    xor 	d
+    bit 	7,a
+    jr 		nz,__LessEqual
+    sbc 	hl,de
+    jr 		nc,__COM4True
+    jr 		__COM4False
+__LessEqual:
+	bit 	7,d
+    jr 		z,__COM4False
+__COM4True:
+	ld 		hl,$FFFF
+	ret
+__COM4False:
+	ld 		hl,$0000
+	ret
+; @end
+
+; @word >= 
+	dec 	hl
+	ld 		a,h
+    xor 	d
+    bit 	7,a
+    jr 		nz,__Greater2
+    sbc 	hl,de
+    jr 		c,__COM6True
+    jr 		__COM6False
+__Greater2:
+	bit 	7,d
+    jr 		nz,__COM6False
+__COM6True:
+	ld 		hl,$FFFF
+	ret
+__COM6False:
+	ld 		hl,$0000
+	ret
+; @end
+
+; @word <
+	dec 	hl
+	ld 		a,h
+    xor 	d
+    bit 	7,a
+    jr 		nz,__LessEqual2
+    sbc 	hl,de
+    jr 		nc,__COM5True
+    jr 		__COM5False
+__LessEqual2:
+	bit 	7,d
+    jr 		z,__COM5False
+__COM5True:
+	ld 		hl,$FFFF
+	ret
+__COM5False:
+	ld 		hl,$0000
+	ret
+; @end

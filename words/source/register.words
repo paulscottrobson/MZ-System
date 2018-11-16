@@ -1,0 +1,44 @@
+; ***************************************************************************************
+; ***************************************************************************************
+;
+;		Name : 		register.words
+;		Author :	Paul Robson (paul@robsons.org.uk)
+;		Date : 		15th November 2018
+;		Purpose :	Register operators
+;
+; ***************************************************************************************
+; ***************************************************************************************
+
+; @macro swap
+	ex 		de,hl
+; @end
+
+; @macro a>b
+	ld 		d,h
+	ld 		e,l
+; @end
+	
+; @macro b>a
+	ld 		h,d
+	ld 		l,e
+; @end
+
+; @macro a>c
+	ld 		b,h
+	ld 		c,l
+; @end
+
+; @macro c>a
+	ld 		h,b
+	ld 		l,c
+; @end
+
+; @macro b>c
+	ld 		b,d
+	ld 		c,e
+; @end
+
+; @macro c>b
+	ld 		d,b
+	ld 		e,c
+; @end

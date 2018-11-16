@@ -4,8 +4,6 @@ rem 	Tidy up
 rem
 del /Q bootloader.sna 
 del /Q ..\files\bootloader.sna
-del /Q bootsave.img
-del /Q boot.img
 rem 
 rem 	Assemble file.
 rem

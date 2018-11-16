@@ -3,8 +3,8 @@
 #
 #		Name : 		imagelib.py
 #		Author :	Paul Robson (paul@robsons.org.uk)
-#		Date : 		8th November 2018
-#		Purpose :	MZ Binary Image Library
+#		Date : 		16th November 2018
+#		Purpose :	Binary Image Library
 #
 # ***************************************************************************************
 # ***************************************************************************************
@@ -23,12 +23,7 @@ class MZImage(object):
 	#
 	def getSysInfo(self):
 		return self.sysInfo 
-	#
-	#		Get list of currently known defining words (e.g. that require another following)
-	#		(has to be maintained manually, required for bootstrap injection)
-	#
-	def getDefiningWords(self):
-		return [ "::",":","variable","&&","!!","@@" ]
+
 	#
 	#		Return dictionary page
 	#
@@ -49,13 +44,6 @@ class MZImage(object):
 	#
 	def bootstrapPaging(self):
 		return 0x400		
-	#
-	#		Set boot address
-	#
-	def setRunAddress(self,page,address):
-		self.write(0,self.sysInfo+8,address & 0xFF)
-		self.write(0,self.sysInfo+9,address >> 8)
-		self.write(0,self.sysInfo+12,page)
 	#
 	#		Convert a page/z80 address to an address in the image
 	#
@@ -83,6 +71,40 @@ class MZImage(object):
 			if self.read(0,pageTableEntry) == 0:
 				self.write(0,pageTableEntry,dataType)
 	#
+	#		Expand physical size of image to include given address
+	#
+	def expandImage(self,page,address):
+		required = self.address(page,address)
+		while len(self.image) <= required:
+			self.image.append(0x00)
+	#
+	#		Add a physical entry to the image dictionary
+	#
+	def addDictionary(self,name,page,address,isMacroEntry):
+		p = self.findEndDictionary()
+		#print("{0:04x} {1:20} {2:02x}:{3:04x}".format(p,name,page,address))
+		assert len(name) < 32 and name != "","Bad name '"+name+"'"
+		dp = self.dictionaryPage()
+		self.lastDictionaryEntry = p
+		self.write(dp,p+0,len(name)+5)
+		self.write(dp,p+1,page)
+		self.write(dp,p+2,address & 0xFF)
+		self.write(dp,p+3,address >> 8)
+		self.write(dp,p+4,len(name)+0x80 if isMacroEntry else len(name))
+		aname = [ord(x) for x in name]
+		for i in range(0,len(aname)):
+			self.write(dp,p+5+i,aname[i])
+		p = p + len(name) + 5
+		self.write(dp,p,0)
+	#
+	#		Find the end of the dictionary
+	#
+	def findEndDictionary(self):
+		p = 0xC000
+		while self.read(self.dictionaryPage(),p) != 0:
+			p = p + self.read(self.dictionaryPage(),p)
+		return p
+	#
 	#		Allocate page of memory to a specific purpose.
 	#
 	def findFreePage(self):
@@ -94,48 +116,7 @@ class MZImage(object):
 			pageUsageTable += 1
 			assert self.read(0,pageUsageTable) != 255,"No space left in page usage table."
 		self.write(0,pageUsageTable,2)
-		return page
-	#
-	#		Expand physical size of image to include given address
-	#
-	def expandImage(self,page,address):
-		required = self.address(page,address)
-		while len(self.image) <= required:
-			self.image.append(0x00)
-	#
-	#		Add a physical entry to the image dictionary
-	#
-	def addDictionary(self,name,page,address):
-		p = self.findEndDictionary()
-		#print("{0:04x} {1:20} {2:02x}:{3:04x}".format(p,name,page,address))
-		assert len(name) < 32 and name != "","Bad name '"+name+"'"
-		dp = self.dictionaryPage()
-		self.lastDictionaryEntry = p
-		self.write(dp,p+0,len(name)+5)
-		self.write(dp,p+1,page)
-		self.write(dp,p+2,address & 0xFF)
-		self.write(dp,p+3,address >> 8)
-		self.write(dp,p+4,len(name))
-		aname = [ord(x) for x in name]
-		for i in range(0,len(aname)):
-			self.write(dp,p+5+i,aname[i])
-		p = p + len(name) + 5
-		self.write(dp,p,0)
-	#
-	#		Modify the type byte of the last dictionary entry created
-	#
-	def xorLastTypeByte(self,n):
-		tByte = self.read(self.dictionaryPage(),self.lastDictionaryEntry+4)
-		tByte = tByte ^ n
-		self.write(self.dictionaryPage(),self.lastDictionaryEntry+4,tByte)
-	#
-	#		Find the end of the dictionary
-	#
-	def findEndDictionary(self):
-		p = 0xC000
-		while self.read(self.dictionaryPage(),p) != 0:
-			p = p + self.read(self.dictionaryPage(),p)
-		return p
+		return page	
 	#
 	#		Write the image file out.
 	#
@@ -146,8 +127,7 @@ class MZImage(object):
 		h.close()
 
 if __name__ == "__main__":
-	z = MZImage()
+	z = ColorForthImage()
 	print(len(z.image))
 	print(z.address(z.dictionaryPage(),0xC000))
 	z.save()
-

@@ -1,3 +1,0 @@
-; @macro c>a
-	ld 		h,b
-	ld 		l,c

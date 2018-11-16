@@ -1,4 +1,0 @@
-; @macro abc>r protected
-	push 	bc
-	push 	de
-	push 	hl

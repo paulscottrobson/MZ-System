@@ -1,0 +1,149 @@
+; ***************************************************************************************
+; ***************************************************************************************
+;
+;		Name : 		unary.words
+;		Author :	Paul Robson (paul@robsons.org.uk)
+;		Date : 		15th November 2018
+;		Purpose :	Unary operators
+;
+; ***************************************************************************************
+; ***************************************************************************************
+
+; @word 0=
+		ld 	a,h
+		or  l
+		ld  hl,$0000
+		ret nz
+		dec hl
+		ret
+; @end
+
+; @word 0<
+		bit 7,h
+		ld  hl,$0000
+		ret z
+		dec hl
+		ret
+; @end
+
+; @word 0-
+		ld 	a,h
+		cpl
+		ld 	h,a
+		ld 	a,l
+		cpl
+		ld 	l,a
+		inc hl
+		ret
+; @end
+
+; @word not
+		ld 	a,h
+		cpl
+		ld 	h,a
+		ld 	a,l
+		cpl
+		ld 	l,a
+		ret
+; @end
+
+; @word abs
+		bit 7,h
+		ret z
+		ld 	a,h
+		cpl
+		ld 	h,a
+		ld 	a,l
+		cpl
+		ld 	l,a
+		inc hl
+		ret
+; @end
+
+
+; @macro 1+
+		inc hl
+; @end
+
+; @macro 1-
+		dec hl
+; @end
+
+; @macro 2+
+		inc hl
+		inc hl
+; @end
+
+; @macro 2-
+		dec hl
+		dec hl
+; @end
+
+
+; @macro 2*
+		add 	hl,hl
+; @end
+
+; @macro 2/
+		sra 	h
+		rr 		l
+; @end
+		
+; @macro 4*
+		add 	hl,hl
+		add 	hl,hl
+; @end
+
+; @word 4/
+		sra 	h
+		rr 		l
+		sra 	h
+		rr 		l
+		ret
+; @end
+		
+; @macro 8*
+		add 	hl,hl
+		add 	hl,hl
+		add 	hl,hl
+; @end
+
+
+; @macro 16*
+		add 	hl,hl
+		add 	hl,hl
+		add 	hl,hl
+		add 	hl,hl
+; @end
+
+; @word 16/
+		sra 	h
+		rr 		l
+		sra 	h
+		rr 		l
+		sra 	h
+		rr 		l
+		sra 	h
+		rr 		l
+		ret
+; @end
+
+; @macro 256*
+		ld 		h,l
+		ld 		l,0
+; @end
+
+; @word 256/
+		ld 		l,h
+		ld 		h,0
+		bit 	7,l
+		ret 	z
+		dec 	h
+		ret
+; @end
+
+; @macro bswap
+		ld 		a,l
+		ld 		l,h
+		ld 		h,a
+; @end

@@ -1,3 +1,0 @@
-; @macro 2*
-		add 	hl,hl
-

@@ -1,5 +1,0 @@
-; @macro 8*
-		add 	hl,hl
-		add 	hl,hl
-		add 	hl,hl
-

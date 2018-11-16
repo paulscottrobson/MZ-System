@@ -1,0 +1,65 @@
+; ***************************************************************************************
+; ***************************************************************************************
+;
+;		Name : 		memory.words
+;		Author :	Paul Robson (paul@robsons.org.uk)
+;		Date : 		15th November 2018
+;		Purpose :	Memory and Hardware access
+;
+; ***************************************************************************************
+; ***************************************************************************************
+
+; @macro c@
+		ld 		l,(hl)
+		ld 		h,0
+; @end
+		
+; @macro @
+		ld 		a,(hl)
+		inc 	hl
+		ld 		h,(hl)
+		ld 		l,a
+; @end
+
+; @macro c!
+		ld 		(hl),e
+; @end
+
+; @macro !
+		ld 		(hl),e
+		inc 	hl
+		ld 		(hl),d
+		dec 	hl		
+; @end
+		
+; @word +!
+		ld 		a,(hl)
+		add 	a,e
+		ld 		(hl),a
+		inc 	hl
+
+		ld 		a,(hl)
+		adc 	a,d
+		ld 		(hl),a
+		dec 	hl
+		ret
+; @end
+
+; @word p!
+		push 	bc
+		ld 		c,l
+		ld 		b,h
+		out 	(c),e
+		pop 	bc
+		ret
+; @end
+
+; @word p@ 
+		push 	bc
+		ld 		c,l
+		ld 		b,h
+		in 		l,(c)
+		ld 		h,0
+		pop 	bc
+		ret
+; @end

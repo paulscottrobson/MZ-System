@@ -1,9 +1,0 @@
-; @word xor
-		ld 		a,h
-		xor 		d
-		ld 		h,a
-		ld 		a,l
-		xor 	e
-		ld 		l,a
-		ret
-

@@ -1,4 +1,0 @@
-; @macro 2/
-		sra 	h
-		rr 		l
-		

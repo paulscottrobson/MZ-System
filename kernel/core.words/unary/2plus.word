@@ -1,4 +1,0 @@
-; @macro 2+
-		inc hl
-		inc hl
-

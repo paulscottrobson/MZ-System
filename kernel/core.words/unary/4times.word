@@ -1,4 +1,0 @@
-; @macro 4*
-		add 	hl,hl
-		add 	hl,hl
-

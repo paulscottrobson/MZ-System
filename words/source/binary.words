@@ -1,0 +1,110 @@
+; ***************************************************************************************
+; ***************************************************************************************
+;
+;		Name : 		binary.words
+;		Author :	Paul Robson (paul@robsons.org.uk)
+;		Date : 		16th November 2018
+;		Purpose :	Binary operators
+;
+; ***************************************************************************************
+; ***************************************************************************************
+
+; @macro +
+		add 	hl,de
+; @end
+
+; @macro -
+		push 	de
+		ex 		de,hl
+		xor 	a
+		sbc 	hl,de
+		pop 	de
+; @end
+
+; @word *
+		jp 		__CALLMultiply
+; @end
+
+; @word /
+		push 	de
+		call 	__CALLDivide
+		ex 		de,hl
+		pop 	de
+		ret
+; @end
+
+; @word mod
+		push 	de
+		call 	__CALLDivide
+		pop 	de
+		ret
+; @end
+
+; @word and
+		ld 		a,h
+		and 	d
+		ld 		h,a
+		ld 		a,l
+		and 	e
+		ld 		l,a
+		ret
+; @end
+
+; @word xor
+		ld 		a,h
+		xor 		d
+		ld 		h,a
+		ld 		a,l
+		xor 	e
+		ld 		l,a
+		ret
+; @end
+
+; @word or
+		ld 		a,h
+		or 		d
+		ld 		h,a
+		ld 		a,l
+		or 		e
+		ld 		l,a
+		ret
+; @end
+
+		
+; @word max
+	ld 		a,h
+    xor 	d
+    bit 	7,a
+    jr 		nz,__Max2
+    push 	hl
+    sbc 	hl,de
+    pop 	hl
+    ret 	nc
+    ex 		de,hl
+    ret
+
+__Max2:
+	bit 	7,h
+	ret 	z
+	ex 		de,hl
+	ret
+; @end
+
+; @word min
+    ld      a,h
+    xor     d
+    bit 	7,a
+    jr      nz,__Min2
+    push    hl
+    sbc     hl,de
+    pop     hl
+    ret     c
+    ex      de,hl
+    ret
+
+__Min2:
+    bit     7,h
+    ret     nz
+    ex      de,hl
+    ret
+; @end

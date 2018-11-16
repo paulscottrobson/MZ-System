@@ -1,3 +1,0 @@
-; @macro r>ab protected
-	pop 	hl
-	pop 	de

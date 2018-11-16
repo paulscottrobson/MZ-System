@@ -1,5 +1,0 @@
-; @word mod
-		push 	de
-		call 	DIVDivideMod16
-		pop 	de
-		ret

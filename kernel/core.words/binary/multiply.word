@@ -1,4 +1,0 @@
-; @word *
-		jp 		MULTMultiply16
-
-		

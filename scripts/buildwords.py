@@ -1,97 +1,60 @@
-# ***************************************************************************************
-# ***************************************************************************************
+# *********************************************************************************
+# *********************************************************************************
 #
-#		Name : 		buildwords.py
-#		Author :	Paul Robson (paul@robsons.org.uk)
-#		Date : 		7th November 2018
-#		Purpose :	Build __words.asm for kernel.
+#		File:		buildwords.py
+#		Purpose:	Build composite assembly file to generate scaffolding code.
+#		Date : 		16th November 2018
+#		Author:		paul@robsons.org.uk
 #
-# ***************************************************************************************
-# ***************************************************************************************
+# *********************************************************************************
+# *********************************************************************************
 
-import os,re,sys
+import os,re
+markerList = ["word","macro","end"]
 #
-#			Create file list of words
+#		Get list of word files.
 #
 fileList = []
-for root,dirs,files in os.walk("core.words"):
-	for f in files:
-		if f[-5:] == ".word":
-			fileList.append(root+os.sep+f)
-
-for root,dirs,files in os.walk("system.words"):
-	for f in files:
-		if f[-5:] == ".word":
-			fileList.append(root+os.sep+f)
+for root,dirs,files in os.walk("source"):
+	for f in [x for x in files if x[-6:] == ".words"]:
+		fileList.append(root+os.sep+f)
 fileList.sort()
 #
-#			Work through them
+#		Now process them
 #
-h = open("__words.asm","w")
+hOut = open("__words.asm","w")
+hOut.write(";\n; Generated.\n;\n")
 for f in fileList:
-	#
-	#		Read in the source code and process it
-	#
-	src = [x.rstrip().replace("\t"," ") for x in open(f).readlines()]
-	src = [x for x in src if x.strip() != ""]
-	#
-	#		Look for ; @<something> <name> [protected]
-	#
-	m = re.match("^\;\s*\@(\w+)\s*(.*)$",src[0])
-	assert m is not None,"Failing for "+f+" first line is "+src[0]	
-	#
-	#		analyse the results of that
-	#
-	wName = m.group(2).lower().strip()
-	wType = m.group(1).lower().strip()
-	isProtected = False
-	if wName[-9:] == "protected":
-		wName = wName[:-9].strip()
-		isProtected = True
-	assert wType == "word" or wType == "immediate" or wType == "macro" or wType == "codeonly","Bad type for "+f
-	#
-	#		output information to the composite file
-	#
-	h.write("; ---------------------------------------------------------\n")
-	h.write("; Name : {0} Type : {1}\n".format(m.group(2).lower().strip(),wType))
-	h.write("; ---------------------------------------------------------\n\n")
-	#
-	#		convert to a portable assembler label
-	#
-	scrambleName = "__mzdefine_"+"_".join("{0:02x}".format(ord(c)) for c in wName)
-	#
-	#		output code if normal word
-	#
-	if wType == "word":
-		h.write("{0}:\n".format(scrambleName))
-		h.write("    call COMHCreateCallToCode\n")
-		for s in src[1:]:
-			h.write(s+"\n")
-	#
-	#		output code if immediate word
-	#
-	if wType == "immediate":
-		h.write("{0}:\n".format(scrambleName))
-		for s in src[1:]:
-			h.write(s+"\n")
-	#
-	#		output code if macro word
-	#
-	if wType == "macro":			
-		h.write("{0}:\n".format(scrambleName))
-		h.write("    ld   a,{0}_end-{0}-5{1}\n".format(scrambleName,"+128" if isProtected else ""))
-		h.write("    call COMHCopyFollowingCode\n")
-		for s in src[1:]:
-			h.write(s+"\n")
-		h.write("{0}_end:\n".format(scrambleName))
-	#
-	#		output code if code only
-	#
-	if wType == "codeonly":
-		for s in src[1:]:
-			h.write(s+"\n")
-		
-	#print(wName,scrambleName,wType)
-	h.write("\n")
-h.close()
-print("Built file with {0} words".format(len(fileList)))
+	unclosedWord = None
+	for l in [x.rstrip().replace("\t"," ") for x in open(f).readlines()]:
+		#print(l)
+		#
+		#	Look for @<marker> <word>
+		#
+		if l != "" and l[0] == ";" and l.find("@") >= 0 and l.find("@") < 4:
+			m = re.match("^\;\s+\@([\w\.]+)\s*([\w\;\+\-\*\/\.\<\=\>\@\!]*)\s*(.*)$",l)
+			assert m is not None,l+" syntax ?"
+			marker = m.group(1).lower()
+			word = m.group(2).lower()
+			protected = m.group(3)
+			assert marker in markerList,"Unknown ? "+l
+			assert protected == "protected" or protected == "","protect ?"+l
+			#
+			#	Starting marker, put label in.
+			#
+			if marker != "end":
+				assert unclosedWord is None,unclosedCleanWord+" not closed ?"
+				unclosedWord = word + "::" + marker
+				unclosedCleanWord = unclosedWord
+				unclosedWord = "_".join(["{0:02x}".format(ord(x)) for x in unclosedWord])
+				hOut.write("__mzword_s_"+unclosedWord+":\n")
+			#
+			#	Ending marker, put label in.
+			#
+			else:
+				assert unclosedWord is not None
+				hOut.write("__mzword_e_"+unclosedWord+":\n")
+				unclosedWord = None
+		hOut.write(l+"\n")
+hOut.close()
+

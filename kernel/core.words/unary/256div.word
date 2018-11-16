@@ -1,7 +1,0 @@
-; @word 256/
-		ld 		l,h
-		ld 		h,0
-		bit 	7,l
-		ret 	z
-		dec 	h
-		ret

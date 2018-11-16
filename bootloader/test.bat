@@ -24,3 +24,9 @@ rem
 echo Comparing the input and output boot images now.
 fc   /b boot.img bootsave.img
 :exit
+rem
+rem		And clean up
+rem
+del /Q bootloader.sna 
+del /Q bootsave.img
+del /Q boot.img

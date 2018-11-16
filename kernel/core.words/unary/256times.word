@@ -1,4 +1,0 @@
-; @macro 256*
-		ld 		h,l
-		ld 		l,0
-
