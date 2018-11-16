@@ -59,10 +59,10 @@ for name in wordNames:
 	#
 	#		It is a generated word, e.g. a macro
 	#
-	if w["type"][:9] == "generator":
+	if w["type"][:5] == "macro":
 		hOut.write("{macro}\n")
 		hOut.write(":{0} {1} {{$C9}} {{c,}}\n".format(w["name"],codeItems))
-		if w["type"] != "generator.noexec":
+		if w["type"] != "macro/p":
 			hOut.write("{words}\n")
 			hOut.write(":{0} {0} {{$C9}} {{c,}}\n".format(w["name"]))
 		hOut.write("\n")

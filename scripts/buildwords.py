@@ -39,6 +39,8 @@ for f in fileList:
 			protected = m.group(3)
 			assert marker in markerList,"Unknown ? "+l
 			assert protected == "protected" or protected == "","protect ?"+l
+			if protected == "protected":
+				marker = marker + "/p"
 			#
 			#	Starting marker, put label in.
 			#
