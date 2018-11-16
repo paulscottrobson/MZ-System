@@ -1,2 +1,0 @@
-; @macro break protected
-		db 		$DD,$01

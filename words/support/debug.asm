@@ -9,10 +9,15 @@
 ; *********************************************************************************
 ; *********************************************************************************
 
-DEBUGShowStackBottomLine:
-		pop 	ix 									; IX = return address
-		push 	de 									; save register TOS on stack
-		push	ix 									; save IX on stack
+DEBUGShowBottomLine:
+		push 	af
+		push 	bc
+		push 	de
+		push 	hl
+
+		push 	bc
+		push 	de
+		push 	hl
 
 		ld 		hl,(SIScreenSize) 					; calculate start position
 		ld 		de,(SIScreenWidth)
@@ -22,42 +27,50 @@ DEBUGShowStackBottomLine:
 		ld 		c,e
 		ld 		b,c 								; clear the bottom line.
 __DSSSBLClear:
-		ld 		d,$0220 
+		ld 		de,$0220
 		call 	GFXWriteCharacter
 		inc 	hl
 		djnz 	__DSSSBLClear
 		pop 	hl 									; restore current position.
-		ld 		ix,$0002 							; copy SP+2 into IX
-		add 	ix,sp
-__DSSShowLoop:
-		ld 		a,(SIExecStackTop) 					; reached Top of execute stack 
-		cp 		ixl									; (assumes < 256 byte data stack)
-		jr 		z,__DSSExit
-		ld 		a,c 								; is there enough space ?
-		cp 		5
-		jr 		c,__DSSExit
-		ld 		d,(ix+1)
-		ld 		e,(ix+0)
-		call 	__DSSPrintDecimal
-		inc 	hl 									; leave a space
-		dec 	c 									; one less character
-		inc 	ix 									; next entry on stack.
-		inc 	ix 
-		jr 		__DSSShowLoop
 
-__DSSExit:
-		pop 	ix 									; and return address
-		pop 	de 	 								; restore old TOS.
-		jp		(ix)								; and go there.
+		pop 	de
+		call 	__DSSPrintDecimal
+		inc 	hl
+		pop 	de
+		call 	__DSSPrintDecimal	
+		inc 	hl
+		pop 	de
+		call 	__DSSPrintDecimal	
+		inc 	hl
+
+		pop 	hl
+		pop 	de
+		pop 	bc
+		pop 	af
+		ret
 
 __DSSPrintDecimal:	
+		bit 	7,d
+		jr 		z,__DSSPrintDecimalRec
+		ld 		a,d
+		cpl 	
+		ld 		d,a
+		ld 		a,e
+		cpl
+		ld 		e,a
+		inc 	de
+		ld 		a,'-'
+		call 	GFXWriteCharacter
+		inc 	hl
+		dec 	c
+__DSSPrintDecimalRec:
 		push 	hl
 		ld 		hl,10
 		call 	DIVDivideMod16
 		ld 		a,d
 		or 		e
 		ex 		(sp),hl
-		call 	nz,__DSSPrintDecimal
+		call 	nz,__DSSPrintDecimalRec
 		pop 	de
 		ld 		a,e
 		add 	a,48

@@ -28,7 +28,7 @@
 #
 import sys,re
 from imagelib import *
-image = ColorForthImage()
+image = MZImage()
 address = 0xC000
 paging = 0x400
 bootpage = image.bootstrapPage()

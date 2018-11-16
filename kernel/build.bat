@@ -2,22 +2,23 @@
 pushd ..\bootloader
 call build.bat
 popd
+pushd ..\words
+call build.bat
+popd
 rem
 rem	Tidy up
 rem
-del /Q __words.asm 
-del /Q boot.img 
+del /Q boot.img
 del /Q ..\files\boot.img
 rem
 rem	Assemble the kernel file.
 rem
-python ..\scripts\buildwords.py 48k
 ..\bin\snasm -next -vice kernel.asm boot.img
 rem
-rem	Create the core dictionary.
+rem Insert required words in dictionary
 rem
-if exist boot.img	python ..\scripts\makedictionary.py
+if exist boot.img   python ..\scripts\loaddictionary.py
 rem
-rem Copy to files area.
+rem Copy to files area.	
 rem
 if exist boot.img 	copy boot.img ..\files\boot.img

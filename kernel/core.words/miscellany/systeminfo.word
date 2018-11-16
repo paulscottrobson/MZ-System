@@ -1,4 +1,0 @@
-; @word sys.info
-		ex 		de,hl
-		ld 		hl,SystemInformation
-		ret

@@ -1,0 +1,9 @@
+//
+//		Words to be added to the dictionary. 
+//
+c, 				FARCompileByteL
+, 				FARCompileWord
+stack.show		DEBUGShowBottomLine
+forth 			DICTSetForth
+macro 			DICTSetMacro
+
