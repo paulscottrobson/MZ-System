@@ -9,7 +9,7 @@
 ; ***************************************************************************************
 ; ***************************************************************************************
 
-DICTSetForth:
+DICTSetWords:
 		xor 	a
 		ld 		(DICTCurrentDictionary),a
 		ret
@@ -65,7 +65,7 @@ __DICTCreateEntry:
 		ld 		(ix+2),e
 		ld 		(ix+3),d 
 
-		ld 		a,(DICTCurrentDictionary) 			; set FORTH/MACRO bit
+		ld 		a,(DICTCurrentDictionary) 			; set WORDS/MACRO bit
 		or 		b
 		ld 		(ix+4),a 							; length (0..5) macro (7)
 

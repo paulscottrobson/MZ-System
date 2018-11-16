@@ -4,6 +4,6 @@
 c, 				FARCompileByteL
 , 				FARCompileWord
 stack.show		DEBUGShowBottomLine
-forth 			DICTSetForth
+words 			DICTSetWords
 macro 			DICTSetMacro
 
